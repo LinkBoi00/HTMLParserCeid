@@ -12,4 +12,8 @@
 . { }
 %%
 
-int yywrap(){ }
+//yywrap needs to return 1 or else it will keep parsing after we reatch eof
+
+int yywrap(){ 
+    return 1; 
+}
