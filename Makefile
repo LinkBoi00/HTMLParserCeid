@@ -8,3 +8,5 @@ target:
 
 clean:
 	rm -rf build/
+run:
+	./build/my_html_parser.out test.txt
