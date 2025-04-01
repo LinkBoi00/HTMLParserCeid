@@ -35,16 +35,16 @@ line:
 /* C code */
 int main(int argc,char** argv){
     
-if (argc >1){
-    yyin=fopen(argv[1], "r");
-    if(!yyin){
-        perror("file not oppening or doesnt exist");
-        return 1;
-    }
+    if (argc >1){
+        yyin=fopen(argv[1], "r");
+        if(!yyin){
+            perror("file not oppening or doesnt exist");
+            return 1;
+        }
 
-    yyparse(); //call the bison parser
+        yyparse(); //call the bison parser
 
-    fclose(yyin);
+        fclose(yyin);
     }
     return 0;
 }
