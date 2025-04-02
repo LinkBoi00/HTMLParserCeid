@@ -9,6 +9,3 @@
 %%
 
 /* C code */
-int yywrap() {
-    return 0;
-}
