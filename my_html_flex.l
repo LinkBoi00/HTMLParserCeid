@@ -5,7 +5,11 @@
 
 /* Rules */
 %%
-
+[a-zA-z]+   { yylval.str = strdup(yytext); return WORD; }
+" "         { return SPACE; }
+\t          { return SPACE; }
+\n          { return EOL; }
+.           { }
 %%
 
 /* C code */
