@@ -1,7 +1,6 @@
 /* Declarations */
 %{
-    #include <stdio.h>
-    #include <stdlib.h>
+   #include "headers/stack.h" 
 
 // Declare the lexical analyzer function
     extern int yyerror();
@@ -46,6 +45,7 @@ int main(int argc,char** argv){
 
         fclose(yyin);
     }
+    
     return 0;
 }
 
