@@ -16,3 +16,6 @@ target:
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+run:
+	./$(OUTPUT_FILE) test.txt
