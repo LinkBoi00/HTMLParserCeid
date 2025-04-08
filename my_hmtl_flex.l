@@ -1,19 +1,22 @@
 /* Declarations */
 %{
     #include "my_html_bison.tab.h"
+    int lineNumber = 1;
 %}
 
 /* Rules */
 %%
-[a-zA-z]+ {yylval.str=strdup(yytext); return WORD;}
-" " {return SPACE;}
-\t  {return SPACE;}
-\n  {return EOL;}
-. { }
+[ \t\s]+ {printf("white space");}
+[\n]+ { lineNumber++; }
+"<MYHTML>" {printf("start my ");return START_MYHTML;}
+"</MYHTML>" {return CLOSING_MYHTML;}
+
+"<head>" {printf("start head ");return START_HEAD;}
+"</head>" {return CLOSING_HEAD;}
+
+"<title>" {printf("<");return START_TITLE;}
+"</title>" {return CLOSING_TITLE;}
+
+[^<]+ {return TEXT;}
+. {}
 %%
-
-//yywrap needs to return 1 or else it will keep parsing after we reatch eof
-
-int yywrap(){ 
-    return 1; 
-}
