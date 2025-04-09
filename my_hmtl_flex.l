@@ -6,8 +6,7 @@
 
 /* Rules */
 %%
-[ \t\s]+ {printf("white space");}
-[\n]+ { lineNumber++; }
+
 "<MYHTML>" {printf("start my ");return START_MYHTML;}
 "</MYHTML>" {return CLOSING_MYHTML;}
 
@@ -16,6 +15,9 @@
 
 "<title>" {printf("<");return START_TITLE;}
 "</title>" {return CLOSING_TITLE;}
+
+[ \t\r]+ {printf("white space");}
+\n { lineNumber++; }
 
 [^<]+ {return TEXT;}
 . {}
