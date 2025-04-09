@@ -14,7 +14,7 @@
 
 "<head>"                { return HEAD_OPEN; }
 "</head>"               { return HEAD_CLOSE; }
-"<title>"               { BEGIN(TEXT_VALUE); return TITLE_OPEN; }
+"<title>"               { return TITLE_OPEN; }
 "</title>"              { return TITLE_CLOSE; }
 "<meta"                 { return META_OPEN; }
 
@@ -22,15 +22,10 @@
 "content="              { return ATTR_CONTENT; }
 "charset="              { return ATTR_CHARSET; }
 
-["]                     { BEGIN(ATTR_VALUE); return QUOTE; }
-<ATTR_VALUE>["]         { BEGIN(INITIAL); return QUOTE; }
-<ATTR_VALUE>[^\"]+      { return ATTR_VALUE_CONTENT; }
-
+["]                     { return QUOTE; }
 ">"                     { return TAG_CLOSE; }
-
-<TEXT_VALUE>[^<]+       { BEGIN(INITIAL); return TEXT; }
 
 [ \t\r]+                { /* Ignore whitespaces */ }
 \n                      { lineNumber++; }
-.                       { return ERROR; }
+.                       { return TEXT; }
 %%

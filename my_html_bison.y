@@ -22,9 +22,8 @@
 
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET
 
-%token QUOTE ATTR_VALUE_CONTENT TAG_CLOSE
+%token QUOTE TAG_CLOSE
 %token TEXT
-%token ERROR
 
 /* Rules */
 %%
@@ -41,7 +40,7 @@ head:
 ;
 
 title_section:
-    TITLE_OPEN TEXT TITLE_CLOSE
+    TITLE_OPEN text TITLE_CLOSE
 ;
 
 meta_section:
@@ -55,17 +54,21 @@ meta_tag:
 ;
 
 attr_name:
-    ATTR_NAME QUOTE ATTR_VALUE_CONTENT QUOTE
+    ATTR_NAME QUOTE text QUOTE
 ;
 
 attr_content:
-    ATTR_CONTENT QUOTE ATTR_VALUE_CONTENT QUOTE
+    ATTR_CONTENT QUOTE text QUOTE
 ;
 
 attr_charset:
-    ATTR_CHARSET QUOTE ATTR_VALUE_CONTENT QUOTE
+    ATTR_CHARSET QUOTE text QUOTE
 ;
 
+text:
+    TEXT
+    | text TEXT
+;
 %%
 
 /* C code */
