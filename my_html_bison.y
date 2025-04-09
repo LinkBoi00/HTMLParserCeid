@@ -21,7 +21,7 @@
 %token META
 %token META_NAME META_CONTENT META_CHARSET
 
-%token BODY BODY_END
+%token BODY
 %token P P_CLOSE
 
 %token QUOTE
@@ -71,35 +71,23 @@ meta_attr_charset:
 ;
 
 body:
-
-    |TAG_OPEN BODY p_section TAG_CLOSE BODY//<body> ... </body> *for some reason crashes here
+    TAG_OPEN BODY p_section TAG_CLOSE BODY//<body> ... </body> *for some reason crashes here
+    | TAG_OPEN BODY TAG_CLOSE BODY   // empty body
 ;
-
-/*
-body_children:
-
-    | p_section body_children
-    | a_section body_children
-    | img_section body_children
-    | form_section body_children
-    | div_section body_children
-;
-*/
 
 p_section:
-    /* empty */
+      p_tag
     | p_section p_tag
 ;
 
 p_tag:
-    TAG_OPEN P attr_id TAG_CLOSE P
+    TAG_OPEN P attr_id P_CLOSE
 ;
 
 attr_id:
-    ATTR_ID QUOTE ATTR_CONTENT QUOTE ATTR_STYLE QUOTE ATTR_CONTENT QUOTE END CONTENT P_CLOSE
+    ATTR_ID QUOTE ATTR_CONTENT QUOTE ATTR_STYLE QUOTE ATTR_CONTENT QUOTE END CONTENT 
     //id="..." style="..." > ....</p>
 ;
-
 
 %%
 

@@ -35,12 +35,12 @@
 
 "p"                    { printf("p ");BEGIN(P_STATE); return P; }
 "</p>"                  {printf("</p>\n"); return P_CLOSE;}
-<P_STATE>\"            { printf("\""); BEGIN(QUOTE_SECTION);return QUOTE;}
+<P_STATE>\"            { printf("\""); yy_push_state(QUOTE_SECTION);return QUOTE;}
 <P_STATE>">"            { printf("> "); BEGIN(TITLE_SECTION); return END;}
 <P_STATE>"id="          { printf("id= "); return ATTR_ID; }
 <P_STATE>"style="       { printf("style= "); return ATTR_STYLE; }
-<CONSUME>\"             {printf("\"");BEGIN(P_STATE); return QUOTE;}
-<QUOTE_SECTION>[^"]+     {printf("called");BEGIN(CONSUME); return ATTR_CONTENT;}
+<CONSUME>\"             {printf("\"");yy_pop_state(); yy_pop_state(); return QUOTE;}
+<QUOTE_SECTION>[^"]+     {printf("called");yy_push_state(CONSUME); return ATTR_CONTENT;}
 <TITLE_SECTION>[^<]+     {printf("..stuf.. "); BEGIN(INITIAL); return CONTENT; }
 
 "<"                     { printf("<"); return TAG_OPEN;}
