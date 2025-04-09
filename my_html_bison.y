@@ -31,7 +31,7 @@ input:
 ;
 
 file:
-    START_MYHTML head CLOSING_MYHTML {printf("compiles");}//<MYHTML> head...stuff </MYHTML>
+    START_MYHTML head CLOSING_MYHTML {}//<MYHTML> head...stuff </MYHTML>
 ;
 
 head:
@@ -39,7 +39,7 @@ head:
 ;
 
 title:
-    START_TITLE TEXT CLOSING_TITLE
+    START_TITLE TEXT CLOSING_TITLE {printf("%s",$2);}
 ;
 
 %%

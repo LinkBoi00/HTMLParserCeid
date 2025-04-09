@@ -19,6 +19,6 @@
 [[:space:]]+ ;
 \n { lineNumber++; }
 
-[^<]+ {return TEXT;}
+[^<]+ {yylval.str = strdup(yytext); return TEXT;}
 . {}
 %%
