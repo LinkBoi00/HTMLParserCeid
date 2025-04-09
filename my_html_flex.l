@@ -1,24 +1,39 @@
 /* Declarations */
 %{
     #include "my_html_bison.tab.h"
+
     int lineNumber = 1;
 %}
 
+%x TITLE
+%x ATTR_VALUE
+
 /* Rules */
 %%
+"<MYHTML>"              { return MYHTML_OPEN; }
+"</MYHTML>"             { return MYHTML_CLOSE; }
 
-"<MYHTML>" {return START_MYHTML;}
-"</MYHTML>" {return CLOSING_MYHTML;}
+"<head>"                { return HEAD_OPEN; }
+"</head>"               { return HEAD_CLOSE; }
 
-"<head>" {return START_HEAD;}
-"</head>" {return CLOSING_HEAD;}
+"<title>"               { BEGIN(TITLE); return HEAD_TITLE_OPEN; }
+<TITLE>"</title>"       { BEGIN(INITIAL); return HEAD_TITLE_CLOSE; }
+<TITLE>[^<]+            { return HEAD_TITLE_CONTENT; }
 
-"<title>" {return START_TITLE;}
-"</title>" {return CLOSING_TITLE;}
+"<meta"                 { return HEAD_META_START; }
+"name="                 { return HEAD_META_NAME; }
+"content="              { return HEAD_META_CONTENT; }
+"charset="              { return HEAD_META_CHARSET; }
 
-[[:space:]]+ ;
-\n { lineNumber++; }
+["]                     { BEGIN(ATTR_VALUE); return QUOTE; }
+<ATTR_VALUE>["]         { BEGIN(INITIAL); return QUOTE; }
+<ATTR_VALUE>[^\"]+      { return ATTR_VALUE_CONTENT; }
 
-[^<]+ {yylval.str = strdup(yytext); return TEXT;}
-. {}
+">"                     { return TAG_CLOSE; }
+
+[ \t\r]+                { /* Ignore whitespaces */ }
+\n                      { lineNumber++; }
+.                       { return ERROR; }
 %%
+
+/* C code */

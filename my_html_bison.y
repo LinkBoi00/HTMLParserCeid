@@ -1,68 +1,108 @@
 /* Declarations */
 %{
+    #include <stdio.h>
+    #include <stdlib.h>
     #include <stdbool.h>
-    #include "stack.h" 
-    extern int lineNumber;
+
+    #define YYDEBUG 1
+
     extern int yylex(void);
     extern int yyerror(char* s);
+
+    extern int lineNumber;
     extern FILE *yyin;
 %}
 
-%union{
-    char* str;
-}
+%debug // TEMP: Enable debugging
 
+%token MYHTML_OPEN MYHTML_CLOSE
 
-%token <str> TEXT
-%token START_MYHTML
-%token CLOSING_MYHTML
-%token START_HEAD
-%token CLOSING_HEAD
-%token START_TITLE
-%token CLOSING_TITLE
-%token EOL
-%token SPACE
+%token HEAD_OPEN HEAD_CLOSE
+%token HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
+%token HEAD_META_START
+%token HEAD_META_NAME HEAD_META_CONTENT HEAD_META_CHARSET
 
+%token QUOTE
+%token ATTR_VALUE_CONTENT
+%token TAG_CLOSE
+%token ERROR
 
 /* Rules */
 %%
 input:
-    file
+    myhtml_file
 ;
 
-file:
-    START_MYHTML head CLOSING_MYHTML {}//<MYHTML> head...stuff </MYHTML>
+myhtml_file:
+    MYHTML_OPEN head MYHTML_CLOSE
 ;
 
 head:
-    START_HEAD title CLOSING_HEAD
+    HEAD_OPEN title_section meta_section HEAD_CLOSE
 ;
 
-title:
-    START_TITLE TEXT CLOSING_TITLE {printf("%s",$2);}
+title_section:
+    HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
+;
+
+meta_section:
+    /* empty */
+    | meta_section meta_tag
+;
+
+meta_tag:
+    HEAD_META_START meta_attr_name meta_attr_content TAG_CLOSE
+    | HEAD_META_START meta_attr_charset TAG_CLOSE
+;
+
+meta_attr_name:
+    HEAD_META_NAME QUOTE ATTR_VALUE_CONTENT QUOTE
+;
+
+meta_attr_content:
+    HEAD_META_CONTENT QUOTE ATTR_VALUE_CONTENT QUOTE
+;
+
+meta_attr_charset:
+    HEAD_META_CHARSET QUOTE ATTR_VALUE_CONTENT QUOTE
 ;
 
 %%
+
 /* C code */
-int main(int argc,char** argv){
-    
-    if (argc >1){
-        yyin=fopen(argv[1], "r");
-        if(!yyin){
-            perror("file not oppening or doesnt exist");
-            return 1;
+int main(int argc, char** argv) {
+    bool inputFromFile = false;
+
+    yydebug = 1; // TEMP: Enable debugging
+
+    // Determine if we will be using a file or stdin as input
+    if (argc > 1)
+        inputFromFile = true;
+
+    // Open the input file, if applicable
+    if (inputFromFile) {
+        FILE *file = fopen(argv[1], "r");
+
+        if (!file) {
+            fprintf(stderr, "Cannot open file %s\n", argv[1]);
+            exit(1);
         }
 
-        yyparse(); //call the bison parser
-
-        fclose(yyin);
+        yyin = file;
     }
-    
+
+    // Call the bison parser
+    yyparse();
+
+    // Close the input file, if applicable
+    if (inputFromFile)
+        fclose(yyin);
+
     return 0;
 }
 
 int yyerror(char* s) {
-     printf("\nError: %s in line number %d \n", s, lineNumber);
+    printf("\nError: %s in line number %d \n", s, lineNumber);
 
     return 0;
 }
