@@ -5,8 +5,7 @@
     int lineNumber = 1;
 %}
 
-%x TITLE
-%x ATTR_VALUE
+%x ATTR_VALUE TEXT_VALUE
 
 /* Rules */
 %%
@@ -15,15 +14,13 @@
 
 "<head>"                { return HEAD_OPEN; }
 "</head>"               { return HEAD_CLOSE; }
+"<title>"               { BEGIN(TEXT_VALUE); return TITLE_OPEN; }
+"</title>"              { return TITLE_CLOSE; }
+"<meta"                 { return META_OPEN; }
 
-"<title>"               { BEGIN(TITLE); return HEAD_TITLE_OPEN; }
-<TITLE>"</title>"       { BEGIN(INITIAL); return HEAD_TITLE_CLOSE; }
-<TITLE>[^<]+            { return HEAD_TITLE_CONTENT; }
-
-"<meta"                 { return HEAD_META_START; }
-"name="                 { return HEAD_META_NAME; }
-"content="              { return HEAD_META_CONTENT; }
-"charset="              { return HEAD_META_CHARSET; }
+"name="                 { return ATTR_NAME; }
+"content="              { return ATTR_CONTENT; }
+"charset="              { return ATTR_CHARSET; }
 
 ["]                     { BEGIN(ATTR_VALUE); return QUOTE; }
 <ATTR_VALUE>["]         { BEGIN(INITIAL); return QUOTE; }
@@ -31,9 +28,9 @@
 
 ">"                     { return TAG_CLOSE; }
 
+<TEXT_VALUE>[^<]+       { BEGIN(INITIAL); return TEXT; }
+
 [ \t\r]+                { /* Ignore whitespaces */ }
 \n                      { lineNumber++; }
 .                       { return ERROR; }
 %%
-
-/* C code */
