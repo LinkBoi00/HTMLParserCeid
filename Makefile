@@ -1,7 +1,6 @@
 BUILD_DIR = build
-LIBS_DIR = libs
 OUTPUT_FILE = $(BUILD_DIR)/my_html_parser.out
-CFLAGS = -I$(LIBS_DIR)/include -lfl
+CFLAGS = -lfl
 
 all: target
 
@@ -11,7 +10,6 @@ target:
 	bison -d -t -o $(BUILD_DIR)/my_html_bison.tab.c my_html_bison.y
 	gcc $(CFLAGS) $(BUILD_DIR)/lex.yy.c \
 		$(BUILD_DIR)/my_html_bison.tab.c \
-		$(LIBS_DIR)/stack.c \
 		-o $(OUTPUT_FILE)
 
 clean:

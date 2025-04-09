@@ -1,12 +1,12 @@
 /* Declarations */
 %{
+    #include <stdio.h>
+    #include <stdlib.h>
     #include <stdbool.h>
-    #include "stack.h" 
 
     extern int yylex(void);
     extern int yyerror(char* s);
     extern FILE *yyin;
-    extern Stack *st;
 %}
 
 %union {
