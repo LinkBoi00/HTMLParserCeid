@@ -4,6 +4,8 @@
     #include <stdlib.h>
     #include <stdbool.h>
 
+    #define YYDEBUG 1
+
     extern int yylex(void);
     extern int yyerror(char* s);
 
@@ -11,7 +13,10 @@
     extern FILE *yyin;
 %}
 
+%debug // TEMP: Enable debugging
+
 %token MYHTML_OPEN MYHTML_CLOSE
+
 %token HEAD_OPEN HEAD_CLOSE
 %token HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
 %token HEAD_META_START
@@ -67,6 +72,8 @@ meta_attr_charset:
 /* C code */
 int main(int argc, char** argv) {
     bool inputFromFile = false;
+
+    yydebug = 1; // TEMP: Enable debugging
 
     // Determine if we will be using a file or stdin as input
     if (argc > 1)
