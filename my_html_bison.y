@@ -3,29 +3,31 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
-
-    #define YYDEBUG 1
-
     extern int yylex(void);
     extern int yyerror(char* s);
-
+    #define YYDEBUG 1
     extern int lineNumber;
     extern FILE *yyin;
 %}
 
 %debug // TEMP: Enable debugging
 
-%token MYHTML_OPEN MYHTML_CLOSE
+%token TAG_OPEN TAG_CLOSE
+%token MYHTML
 
-%token HEAD_OPEN HEAD_CLOSE
-%token HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
-%token HEAD_META_START
-%token HEAD_META_NAME HEAD_META_CONTENT HEAD_META_CHARSET
+%token HEAD
+%token TITLE CONTENT TITLE_END
+
+%token META
+%token META_NAME META_CONTENT META_CHARSET
+
+%token BODY BODY_END
+%token P P_CLOSE
 
 %token QUOTE
-%token ATTR_VALUE_CONTENT
-%token TAG_CLOSE
-%token ERROR
+%token ATTR_ID ATTR_STYLE
+%token ATTR_CONTENT
+%token END
 
 /* Rules */
 %%
@@ -34,38 +36,70 @@ input:
 ;
 
 myhtml_file:
-    MYHTML_OPEN head MYHTML_CLOSE
+    TAG_OPEN MYHTML head body TAG_CLOSE MYHTML
+    | TAG_OPEN MYHTML body TAG_CLOSE MYHTML
 ;
 
 head:
-    HEAD_OPEN title_section meta_section HEAD_CLOSE
+    TAG_OPEN HEAD title_section meta_section TAG_CLOSE HEAD
 ;
 
 title_section:
-    HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
+    TAG_OPEN TITLE CONTENT TITLE_END//<title> ... </title>
 ;
 
 meta_section:
     /* empty */
-    | meta_section meta_tag
+    |meta_tag meta_section
 ;
 
 meta_tag:
-    HEAD_META_START meta_attr_name meta_attr_content TAG_CLOSE
-    | HEAD_META_START meta_attr_charset TAG_CLOSE
+    TAG_OPEN META meta_attr_name meta_attr_content END
+    | TAG_OPEN META meta_attr_charset END
 ;
 
 meta_attr_name:
-    HEAD_META_NAME QUOTE ATTR_VALUE_CONTENT QUOTE
+    META_NAME QUOTE ATTR_CONTENT QUOTE
 ;
 
 meta_attr_content:
-    HEAD_META_CONTENT QUOTE ATTR_VALUE_CONTENT QUOTE
+    META_CONTENT QUOTE ATTR_CONTENT QUOTE
 ;
 
 meta_attr_charset:
-    HEAD_META_CHARSET QUOTE ATTR_VALUE_CONTENT QUOTE
+    META_CHARSET QUOTE ATTR_CONTENT QUOTE
 ;
+
+body:
+
+    |TAG_OPEN BODY p_section TAG_CLOSE BODY//<body> ... </body> *for some reason crashes here
+;
+
+/*
+body_children:
+
+    | p_section body_children
+    | a_section body_children
+    | img_section body_children
+    | form_section body_children
+    | div_section body_children
+;
+*/
+
+p_section:
+    /* empty */
+    | p_section p_tag
+;
+
+p_tag:
+    TAG_OPEN P attr_id TAG_CLOSE P
+;
+
+attr_id:
+    ATTR_ID QUOTE ATTR_CONTENT QUOTE ATTR_STYLE QUOTE ATTR_CONTENT QUOTE END CONTENT P_CLOSE
+    //id="..." style="..." > ....</p>
+;
+
 
 %%
 
@@ -73,7 +107,7 @@ meta_attr_charset:
 int main(int argc, char** argv) {
     bool inputFromFile = false;
 
-    yydebug = 1; // TEMP: Enable debugging
+    yydebug = 0; // TEMP: Enable debugging
 
     // Determine if we will be using a file or stdin as input
     if (argc > 1)
