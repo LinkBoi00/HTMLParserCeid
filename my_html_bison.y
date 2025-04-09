@@ -6,28 +6,35 @@
 
     extern int yylex(void);
     extern int yyerror(char* s);
+
+    extern int lineNumber;
     extern FILE *yyin;
 %}
 
-%union {
-    char* str;
-}
+%token MYHTML_OPEN MYHTML_CLOSE
+%token HEAD_OPEN HEAD_CLOSE
+%token HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
 
-%token EOL
-%token<str> WORD
-%token SPACE
+%token ERROR
 
 /* Rules */
 %%
 input:
-    | input line
+    myhtml_file
 ;
 
-line:
-    EOL         { printf("\n"); }
-    | SPACE     { printf(" "); }
-    | WORD      { printf("%s", $1); free($1); }
+myhtml_file:
+    MYHTML_OPEN head MYHTML_CLOSE
 ;
+
+head:
+    HEAD_OPEN title HEAD_CLOSE
+;
+
+title:
+    HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
+;
+
 %%
 
 /* C code */
@@ -61,7 +68,7 @@ int main(int argc, char** argv) {
 }
 
 int yyerror(char* s) {
-    printf("Error: %s\n", s);
+    printf("\nError: %s in line number %d \n", s, lineNumber);
 
     return 0;
 }
