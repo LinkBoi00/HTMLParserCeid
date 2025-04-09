@@ -33,19 +33,19 @@ myhtml_file:
 ;
 
 head:
-    HEAD_OPEN title meta HEAD_CLOSE
+    HEAD_OPEN title_section meta_section HEAD_CLOSE
 ;
 
-title:
+title_section:
     HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
 ;
 
-meta:
+meta_section:
     /* empty */
-    | meta meta_attr
+    | meta_section meta_tag
 ;
 
-meta_attr:
+meta_tag:
     HEAD_META_START meta_attr_name meta_attr_content TAG_CLOSE
     | HEAD_META_START meta_attr_charset TAG_CLOSE
 ;
