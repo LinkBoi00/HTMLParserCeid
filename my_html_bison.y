@@ -36,16 +36,16 @@ myhtml_file:
 ;
 
 head:
-    HEAD_OPEN title_section meta_section HEAD_CLOSE
+    HEAD_OPEN head_title_section head_meta_section HEAD_CLOSE
 ;
 
-title_section:
+head_title_section:
     TITLE_OPEN text TITLE_CLOSE
 ;
 
-meta_section:
+head_meta_section:
     /* empty */
-    | meta_section meta_tag
+    | head_meta_section meta_tag
 ;
 
 meta_tag:
