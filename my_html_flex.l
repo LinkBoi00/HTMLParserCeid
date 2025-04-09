@@ -17,10 +17,16 @@
 "<title>"               { return TITLE_OPEN; }
 "</title>"              { return TITLE_CLOSE; }
 "<meta"                 { return META_OPEN; }
+"<body>"                { return BODY_OPEN; }
+"</body>"               { return BODY_CLOSE; }
+"<p"                    { return P_OPEN; }
+"</p>"                  { return P_CLOSE; }
 
 "name="                 { return ATTR_NAME; }
 "content="              { return ATTR_CONTENT; }
 "charset="              { return ATTR_CHARSET; }
+"id="                   { return ATTR_ID; }
+"style="                { return ATTR_STYLE; }
 
 ["]                     { return QUOTE; }
 ">"                     { return TAG_CLOSE; }

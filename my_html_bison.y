@@ -17,10 +17,10 @@
 
 %token MYHTML_OPEN MYHTML_CLOSE
 
-%token HEAD_OPEN HEAD_CLOSE
-%token TITLE_OPEN TITLE_CLOSE META_OPEN
+%token HEAD_OPEN HEAD_CLOSE BODY_OPEN BODY_CLOSE
+%token TITLE_OPEN TITLE_CLOSE META_OPEN P_OPEN P_CLOSE
 
-%token ATTR_NAME ATTR_CONTENT ATTR_CHARSET
+%token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE
 
 %token QUOTE TAG_CLOSE
 %token TEXT
@@ -32,7 +32,8 @@ input:
 ;
 
 myhtml_file:
-    MYHTML_OPEN head MYHTML_CLOSE
+    MYHTML_OPEN head body MYHTML_CLOSE
+    | MYHTML_OPEN body MYHTML_CLOSE
 ;
 
 head:
@@ -53,6 +54,14 @@ meta_tag:
     | META_OPEN attr_charset TAG_CLOSE
 ;
 
+body:
+    BODY_OPEN p_tag BODY_CLOSE
+;
+
+p_tag:
+    P_OPEN attr_id attr_style TAG_CLOSE text P_CLOSE
+;
+
 attr_name:
     ATTR_NAME QUOTE text QUOTE
 ;
@@ -63,6 +72,14 @@ attr_content:
 
 attr_charset:
     ATTR_CHARSET QUOTE text QUOTE
+;
+
+attr_id:
+    ATTR_ID QUOTE text QUOTE
+;
+
+attr_style:
+    ATTR_STYLE QUOTE text QUOTE
 ;
 
 text:
