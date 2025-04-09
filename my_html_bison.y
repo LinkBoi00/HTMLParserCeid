@@ -14,7 +14,12 @@
 %token MYHTML_OPEN MYHTML_CLOSE
 %token HEAD_OPEN HEAD_CLOSE
 %token HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
+%token HEAD_META_START
+%token HEAD_META_NAME HEAD_META_CONTENT HEAD_META_CHARSET
 
+%token QUOTE
+%token ATTR_VALUE_CONTENT
+%token TAG_CLOSE
 %token ERROR
 
 /* Rules */
@@ -28,11 +33,33 @@ myhtml_file:
 ;
 
 head:
-    HEAD_OPEN title HEAD_CLOSE
+    HEAD_OPEN title meta HEAD_CLOSE
 ;
 
 title:
     HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
+;
+
+meta:
+    /* empty */
+    | meta meta_attr
+;
+
+meta_attr:
+    HEAD_META_START meta_attr_name meta_attr_content TAG_CLOSE
+    | HEAD_META_START meta_attr_charset TAG_CLOSE
+;
+
+meta_attr_name:
+    HEAD_META_NAME QUOTE ATTR_VALUE_CONTENT QUOTE
+;
+
+meta_attr_content:
+    HEAD_META_CONTENT QUOTE ATTR_VALUE_CONTENT QUOTE
+;
+
+meta_attr_charset:
+    HEAD_META_CHARSET QUOTE ATTR_VALUE_CONTENT QUOTE
 ;
 
 %%

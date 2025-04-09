@@ -6,6 +6,7 @@
 %}
 
 %x TITLE
+%x ATTR_VALUE
 
 /* Rules */
 %%
@@ -19,8 +20,18 @@
 <TITLE>"</title>"       { printf("HEAD_TITLE_CLOSE\n"); BEGIN(INITIAL); return HEAD_TITLE_CLOSE; }
 <TITLE>[^<]+            { printf("HEAD_TITLE_CONTENT\n"); return HEAD_TITLE_CONTENT; }
 
+"<meta"                 { printf("HEAD_META_OPEN\n"); return HEAD_META_START; }
+"name="                 { printf("HEAD_META_NAME\n"); return HEAD_META_NAME; }
+"content="              { printf("HEAD_META_CONTENT\n"); return HEAD_META_CONTENT; }
+"charset="              { printf("HEAD_META_CHARSET\n"); return HEAD_META_CHARSET; }
 
-[ \t\r]+              { /* Ignore whitespaces */ }
+\"                      { printf("QUOTE\n"); BEGIN(ATTR_VALUE); return QUOTE; }
+<ATTR_VALUE>\"          { printf("QUOTE\n"); BEGIN(INITIAL); return QUOTE; }
+<ATTR_VALUE>[^\"]+      { printf("ATTR_VALUE_CONTENT\n"); return ATTR_VALUE_CONTENT; }
+
+">"                     { printf("TAG_CLOSE\n"); return TAG_CLOSE; }
+
+[ \t\r]+                { /* Ignore whitespaces */ }
 \n                      { lineNumber++; }
 .                       { printf("ERROR\n"); return ERROR; }
 %%
