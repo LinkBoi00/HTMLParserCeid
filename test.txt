@@ -5,4 +5,7 @@
     <meta charset="UTF-8">
     <meta name="author" content="Input your name here">
 </head>
+<body>
+    <p id="par1" style="color:blue">This is my project.</p>
+</body>
 </MYHTML>

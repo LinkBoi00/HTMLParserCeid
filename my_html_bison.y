@@ -18,11 +18,15 @@
 %token MYHTML_OPEN MYHTML_CLOSE
 
 %token HEAD_OPEN HEAD_CLOSE
-%token HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
+%token HEAD_TITLE_OPEN TEXT_VALUE_CONTENT HEAD_TITLE_CLOSE
 %token HEAD_META_START
 %token HEAD_META_NAME HEAD_META_CONTENT HEAD_META_CHARSET
 
+%token BODY_OPEN BODY_CLOSE
+%token BODY_P_START BODY_P_CLOSE
+
 %token QUOTE
+%token ATTR_ID ATTR_STYLE
 %token ATTR_VALUE_CONTENT
 %token TAG_CLOSE
 %token ERROR
@@ -34,7 +38,8 @@ input:
 ;
 
 myhtml_file:
-    MYHTML_OPEN head MYHTML_CLOSE
+    MYHTML_OPEN head body MYHTML_CLOSE
+    | MYHTML_OPEN body MYHTML_CLOSE
 ;
 
 head:
@@ -42,7 +47,7 @@ head:
 ;
 
 title_section:
-    HEAD_TITLE_OPEN HEAD_TITLE_CONTENT HEAD_TITLE_CLOSE
+    HEAD_TITLE_OPEN TEXT_VALUE_CONTENT HEAD_TITLE_CLOSE
 ;
 
 meta_section:
@@ -66,6 +71,36 @@ meta_attr_content:
 meta_attr_charset:
     HEAD_META_CHARSET QUOTE ATTR_VALUE_CONTENT QUOTE
 ;
+
+body:
+//    BODY_OPEN body_children BODY_CLOSE
+    BODY_OPEN p_section BODY_CLOSE
+;
+
+/*
+body_children:
+
+    | p_section body_children
+    | a_section body_children
+    | img_section body_children
+    | form_section body_children
+    | div_section body_children
+;
+*/
+
+p_section:
+    /* empty */
+    | p_section p_tag
+;
+
+p_tag:
+    BODY_P_START attr_id TAG_CLOSE BODY_P_CLOSE
+;
+
+attr_id:
+    ATTR_ID ATTR_VALUE_CONTENT ATTR_STYLE ATTR_VALUE_CONTENT
+;
+
 
 %%
 
