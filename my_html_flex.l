@@ -7,45 +7,53 @@
 
 %option stack
 
-%x TITLE_SECTION
-%x ATTR_VALUE
-%x P_STATE
-%x QUOTE_SECTION
-%x CONSUME
+%x COMMENT_STATE
+%x IMG_STATE
 
 /* Rules */
 %%
-\n                      {lineNumber++;}
-"MYHTML>"              { printf("myhtml>\n"); return MYHTML; }
-"head>"                { printf("head>\n"); return HEAD; }
+"<!--"                  {yy_push_state(COMMENT_STATE); return COMMENT_OPEN;}
+<COMMENT_STATE>"--"     {return COMMENT_ERROR;}
+<COMMENT_STATE>"-->"    {yy_pop_state(); return COMMENT_CLOSE;}
+<COMMENT_STATE>.        {return TEXT;}
 
-"</title>"              { printf("</title>\n"); return TITLE_END;}//so that we dont triger title> and start going to another state
-"title>"               { printf("title> "); BEGIN(TITLE_SECTION); return TITLE; }
+"<MYHTML>"              { return MYHTML_OPEN; }//has 2 children head and body
+"</MYHTML>"             { return MYHTML_CLOSE; }
 
-"meta"                 { printf("meta ");return META; }
-"name="                 { printf("name= "); return META_NAME; }
-"content="              { printf("content= "); return META_CONTENT; }
-"charset="              { printf("charset= ");return META_CHARSET; }
-["]                     { BEGIN(ATTR_VALUE); return QUOTE; }
->                       { printf(">\n"); return END;}
-<ATTR_VALUE>["]         { BEGIN(INITIAL); return QUOTE; }
-<ATTR_VALUE>[^\"]+      { return ATTR_CONTENT; }
+"<head>"                { return HEAD_OPEN; }//has 2 children tittle and meta
+"</head>"               { return HEAD_CLOSE; }
+"<title>"               { return TITLE_OPEN; }//text only
+"</title>"              { return TITLE_CLOSE; }
 
-"body>"                { printf("body>\n"); return BODY; }
+"<body>"                { return BODY_OPEN; }//its children are p a img form div
+"</body>"               { return BODY_CLOSE; }//doesnt have id and it must exist
 
-"p"                    { printf("p ");BEGIN(P_STATE); return P; }
-"</p>"                  {printf("</p>\n"); return P_CLOSE;}
-<P_STATE>\"            { printf("\""); yy_push_state(QUOTE_SECTION);return QUOTE;}
-<P_STATE>">"            { printf("> "); BEGIN(TITLE_SECTION); return END;}
-<P_STATE>"id="          { printf("id= "); return ATTR_ID; }
-<P_STATE>"style="       { printf("style= "); return ATTR_STYLE; }
-<CONSUME>\"             {printf("\"");yy_pop_state(); yy_pop_state(); return QUOTE;}
-<QUOTE_SECTION>[^"]+     {printf("called");yy_push_state(CONSUME); return ATTR_CONTENT;}
-<TITLE_SECTION>[^<]+     {printf("..stuf.. "); BEGIN(INITIAL); return CONTENT; }
+"<p"                    { return P_OPEN; }
+"</p>"                  { return P_CLOSE; }
+"<a"                    { return A_OPEN; }
+"</a>"                  { return A_CLOSE; }
 
-"<"                     { printf("<"); return TAG_OPEN;}
-"</"                    { printf("</");return TAG_CLOSE; }
+"<meta"                 { return META_OPEN; }
+"name="                 { return ATTR_NAME; }
+"content="              { return ATTR_CONTENT; }
+"charset="              { return ATTR_CHARSET; }
+
+"id="                   { return ATTR_ID; }
+"style="                { return ATTR_STYLE; }
+"href="                 { return ATTR_HREF; }
+
+"<img"                  {return IMG_OPEN;}
+"src="                  {return ATTR_SRC;}
+"alt="                  {return ATTR_ALT;}
+"height="               {yy_push_state(IMG_STATE);return ATTR_HEIGHT;}
+"width="                {yy_push_state(IMG_STATE);return ATTR_WIDTH;}
+<IMG_STATE>[0-9]+       {yy_pop_state(); yylval.num = atoi(yytext); return INTEGER;}
+<IMG_STATE>-[0-9]+       {yy_pop_state(); yylval.num = atoi(yytext); return INTEGER;}
+
+["]                     { return QUOTE; }
+">"                     { return TAG_CLOSE; }
 
 [ \t\r]+                { /* Ignore whitespaces */ }
-.                       { }
+\n                      { lineNumber++; }
+.                       { return TEXT; }
 %%

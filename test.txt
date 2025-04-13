@@ -7,5 +7,10 @@
 </head>
 <body>
     <p id="par1" style="color:blue">This is my project.</p>
+    <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
+    <a id="hyper" href="https://arxes.ceid.gr">
+        Here comes an image.
+        <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
+    </a>
 </body>
 </MYHTML>
