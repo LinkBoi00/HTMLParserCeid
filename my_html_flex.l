@@ -50,8 +50,19 @@
 <IMG_STATE>[0-9]+       {yy_pop_state(); yylval.num = atoi(yytext); return INTEGER;}
 <IMG_STATE>-[0-9]+       {yy_pop_state(); yylval.num = atoi(yytext); return INTEGER;}
 
+"<form"                 { return FORM_OPEN; }
+"</form>"               { return FORM_CLOSE;}
+"<input"                { return INPUT_OPEN; }
+
+"<label"                { return LABEL_OPEN; }
+"</label>"              { return LABEL_CLOSE; }
+"for="                  { return FOR; }
+"type="                 { return TYPE; }
+"value="                { return VALUE;}
+
 ["]                     { return QUOTE; }
-">"                     { return TAG_CLOSE; }
+[']                     { return SINGLE_QUOTE;}
+">"                     { return TAG_CLOSE; }  
 
 [ \t\r]+                { /* Ignore whitespaces */ }
 \n                      { lineNumber++; }
