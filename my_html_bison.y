@@ -48,6 +48,7 @@ tag μπορουν να εμφανιστουν οπως να ειναι οποτ
 %token FORM_OPEN FORM_CLOSE
 %token LABEL_OPEN LABEL_CLOSE FOR
 %token INPUT_OPEN TYPE VALUE
+%token DIV_OPEN DIV_CLOSE
 
 /* Rules */
 %%
@@ -88,6 +89,7 @@ body_tags:
     | body_tags a_tag
     | body_tags img_tag //its a bit unclear if he wants the image tag to also belong to the body tag
     | body_tags form_tag
+    | body_tags div_tag
 ;
 
 p_tag:
@@ -181,6 +183,23 @@ label_section:
     |label_section attr_for
     |label_section attr_style
     |label_section attr_id
+;
+
+div_tag:
+    DIV_OPEN div_attr TAG_CLOSE div_children DIV_CLOSE//<div id style > <a> <p> ... </div>
+    |DIV_OPEN div_attr TAG_CLOSE /*empty*/  DIV_CLOSE//<div id style > </div>
+;
+
+div_attr:
+    |div_attr attr_style
+    |div_attr attr_id
+;
+
+div_children:
+    |div_children p_tag
+    |div_children a_tag
+    |div_children img_tag
+    |div_children form_tag
 ;
 
 

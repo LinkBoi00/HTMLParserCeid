@@ -10,11 +10,13 @@
 
     <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
     
-    <a id="hyper" href="https://arxes.ceid.gr">
-        Here comes an image.
-        <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
-    </a>
-
+    <div id="div1" style="color:blue"> 
+        <a id="hyper" href="https://arxes.ceid.gr">
+            Here comes an image.
+            <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
+        </a>
+    </div>
+    
     <form id="form1">
         <label for="name" id="label1">Name:</label>
         <input type="text" id="name">

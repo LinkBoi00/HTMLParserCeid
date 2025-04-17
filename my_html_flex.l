@@ -60,6 +60,9 @@
 "type="                 { return TYPE; }
 "value="                { return VALUE;}
 
+"<div"                  { return DIV_OPEN; }
+"</div>"                { return DIV_CLOSE; }
+
 ["]                     { return QUOTE; }
 [']                     { return SINGLE_QUOTE;}
 ">"                     { return TAG_CLOSE; }  
