@@ -88,7 +88,7 @@ body_tags:
     /* empty */
     | body_tags p_tag
     | body_tags a_tag
-    | body_tags img_tag //its a bit unclear if he wants the image tag to also belong to the body tag
+    | body_tags img_tag 
     | body_tags form_tag
     | body_tags div_tag
 ;
@@ -97,13 +97,31 @@ p_tag:
     P_OPEN attr_id attr_style TAG_CLOSE text P_CLOSE
     | P_OPEN attr_style attr_id TAG_CLOSE text P_CLOSE
     | P_OPEN attr_id TAG_CLOSE text P_CLOSE
+    {
+        id_flag = 0;
+    }
 ;
 
 a_tag:
-    A_OPEN attr_id attr_href TAG_CLOSE text A_CLOSE 
-    | A_OPEN attr_id attr_href TAG_CLOSE A_CLOSE
-    | A_OPEN attr_id attr_href TAG_CLOSE text img_tag A_CLOSE
-    | A_OPEN attr_id attr_href TAG_CLOSE img_tag text A_CLOSE
+    a_tag_section text A_CLOSE 
+    | a_tag_section A_CLOSE
+    | a_tag_section text img_tag A_CLOSE
+    | a_tag_section img_tag text A_CLOSE
+    {
+        id_flag = 0;
+    }
+;
+
+a_tag_section:
+    A_OPEN a_tag_children TAG_CLOSE{
+        id_flag = 0;
+    }
+;
+
+a_tag_children:
+    /* empty */
+    |a_tag_children attr_id
+    |a_tag_children attr_href
 ;
 
 attr_name:
@@ -161,7 +179,9 @@ img_attributes:
 
 form_tag:
     FORM_OPEN attr_id attr_style TAG_CLOSE form_body FORM_CLOSE
-    |FORM_OPEN attr_style attr_id TAG_CLOSE form_body FORM_CLOSE
+    |FORM_OPEN attr_style attr_id TAG_CLOSE form_body FORM_CLOSE{
+        id_flag = 0;
+    }
 ;
 
 form_body:
@@ -171,33 +191,56 @@ form_body:
 
 input_tag:
     INPUT_OPEN input_section TAG_CLOSE //<input section >
+    {
+        id_flag = 0;
+    }
 ;
 
 input_section:
     |input_section attr_type
-    |input_section attr_id
+    |input_section attr_id{
+       check_id_flag(&id_flag);
+   }
     |input_section attr_style
     |input_section attr_value
 ;
 
 label_tag:
-    LABEL_OPEN label_section TAG_CLOSE text LABEL_CLOSE
+    LABEL_OPEN label_section TAG_CLOSE text LABEL_CLOSE{
+        id_flag = 0;
+    }
 ;
 
 label_section:
-    |label_section attr_for
+    |label_section attr_for{
+       check_id_flag(&id_flag);
+   }
     |label_section attr_style
     |label_section attr_id
 ;
 
 div_tag:
-    DIV_OPEN div_attr TAG_CLOSE div_children DIV_CLOSE//<div id style > <a> <p> ... </div>
-    |DIV_OPEN div_attr TAG_CLOSE /*empty*/  DIV_CLOSE//<div id style > </div>
+    div_section div_children DIV_CLOSE//<div id style > <a> <p> ... </div>
+    {
+        id_flag = 0;
+    }
+    |div_section /*empty*/  DIV_CLOSE//<div id style > </div>
+    {
+        id_flag = 0;
+    }
+;
+
+div_section:
+    DIV_OPEN div_attr TAG_CLOSE{
+        id_flag=0;
+    }
 ;
 
 div_attr:
     |div_attr attr_style
-    |div_attr attr_id
+    |div_attr attr_id{
+       check_id_flag(&id_flag);
+   }
 ;
 
 div_children:
@@ -226,6 +269,7 @@ void check_id_flag(int* id){
     if(*id == 2){
         yyerror("Duplicate attribute ");
     }
+    //printf("line:%d id:%d\n",lineNumber,id_flag);
 }
 
 int main(int argc, char** argv) {
