@@ -14,16 +14,11 @@
     extern FILE *yyin;
 %}
 
-/*εχουμε προβλημα στο γεγονος πως το id και τα χαρακτηριστηκα απο καθε 
-tag μπορουν να εμφανιστουν οπως να ειναι οποτε η πρεπει να κανουμε διακριτα μαθ
-για να βρουμε ολους τους δυνατους συνδιασμους η να βαλουμε flags globaly τα οποια θα 
-γινονται 0 μολις τελειωσει ο συνολικος κανονας.*/
+/*for some reason it has warnings in grammar and crashes*/
 
 //επισης καθε ενα που εχει =πχ id μπορει να εχει κενα,μαλλον 
 //πρεπει να ορισουμε εναν κανονα = EQUALLS και να κανουμε αλλαγες ετσι 
 //ωστε αν υπαρχει κενο στο = να μην βγαλει λαθος
-
-//can value have " inside??? and can the others have that too?? wont we have a problem with the QUOTE token
 
 %debug // TEMP: Enable debugging
 
@@ -94,12 +89,20 @@ body_tags:
 ;
 
 p_tag:
-    P_OPEN attr_id attr_style TAG_CLOSE text P_CLOSE
-    | P_OPEN attr_style attr_id TAG_CLOSE text P_CLOSE
-    | P_OPEN attr_id TAG_CLOSE text P_CLOSE
+    p_section text P_CLOSE
+;
+
+p_section:
+    P_OPEN p_children TAG_CLOSE
     {
-        id_flag = 0;
+        id_flag=0;
     }
+;
+
+p_children:
+    /*empty children this is a mistake its children cant be empty*/
+    |p_children attr_id
+    |p_children attr_style
 ;
 
 a_tag:
@@ -137,12 +140,13 @@ attr_charset:
 ;
 
 attr_id:
-    ATTR_ID QUOTE text QUOTE 
+    ATTR_ID QUOTE text QUOTE {
+        check_id_flag(&id_flag);
+    }
 ;
 
 attr_style:
-    /*empty*/
-    |ATTR_STYLE QUOTE text QUOTE
+    ATTR_STYLE QUOTE text QUOTE
 ;
 
 attr_type:
@@ -170,18 +174,29 @@ img_tag:
 img_attributes:
    |img_attributes ATTR_SRC QUOTE text QUOTE
    |img_attributes ATTR_ALT QUOTE text QUOTE 
-   |img_attributes attr_id {
-       check_id_flag(&id_flag);
-   }
+   |img_attributes attr_id 
    |img_attributes ATTR_HEIGHT INTEGER {if($3 <= 0) yyerror("height must a positive integer");}
    |img_attributes ATTR_WIDTH INTEGER  {if($3 <= 0) yyerror("width must a positive integer");}
 ;
 
 form_tag:
-    FORM_OPEN attr_id attr_style TAG_CLOSE form_body FORM_CLOSE
-    |FORM_OPEN attr_style attr_id TAG_CLOSE form_body FORM_CLOSE{
+    form_section form_body FORM_CLOSE
+    {
         id_flag = 0;
     }
+;
+
+form_section:
+    /*wrong for some reason it has conflicts*/
+    |FORM_OPEN form_children TAG_CLOSE{
+        id_flag = 0;
+    }
+;
+
+form_children:
+    /*wrong should not be empty*/
+    |form_children attr_id
+    |form_children attr_style
 ;
 
 form_body:
@@ -198,25 +213,28 @@ input_tag:
 
 input_section:
     |input_section attr_type
-    |input_section attr_id{
-       check_id_flag(&id_flag);
-   }
+    |input_section attr_id
     |input_section attr_style
     |input_section attr_value
 ;
 
 label_tag:
-    LABEL_OPEN label_section TAG_CLOSE text LABEL_CLOSE{
+    label_section text LABEL_CLOSE{
         id_flag = 0;
     }
 ;
 
 label_section:
-    |label_section attr_for{
-       check_id_flag(&id_flag);
-   }
-    |label_section attr_style
-    |label_section attr_id
+    LABEL_OPEN label_children TAG_CLOSE{
+        id_flag=0;
+    }
+;
+
+label_children:
+    /*empty*/
+    |label_children attr_for
+    |label_children attr_style
+    |label_children attr_id
 ;
 
 div_tag:
@@ -224,10 +242,7 @@ div_tag:
     {
         id_flag = 0;
     }
-    |div_section /*empty*/  DIV_CLOSE//<div id style > </div>
-    {
-        id_flag = 0;
-    }
+    |div_section /*empty*/  DIV_CLOSE
 ;
 
 div_section:
@@ -238,9 +253,7 @@ div_section:
 
 div_attr:
     |div_attr attr_style
-    |div_attr attr_id{
-       check_id_flag(&id_flag);
-   }
+    |div_attr attr_id
 ;
 
 div_children:
