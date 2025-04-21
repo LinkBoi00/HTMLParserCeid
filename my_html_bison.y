@@ -6,9 +6,10 @@
 
     #define YYDEBUG 1
 
+    int id_flag=0;
+    void check_id_flag(int* id);
     extern int yylex(void);
     extern int yyerror(char* s);
-
     extern int lineNumber;
     extern FILE *yyin;
 %}
@@ -99,7 +100,7 @@ p_tag:
 ;
 
 a_tag:
-    A_OPEN attr_id attr_href TAG_CLOSE text A_CLOSE
+    A_OPEN attr_id attr_href TAG_CLOSE text A_CLOSE 
     | A_OPEN attr_id attr_href TAG_CLOSE A_CLOSE
     | A_OPEN attr_id attr_href TAG_CLOSE text img_tag A_CLOSE
     | A_OPEN attr_id attr_href TAG_CLOSE img_tag text A_CLOSE
@@ -118,7 +119,7 @@ attr_charset:
 ;
 
 attr_id:
-    ATTR_ID QUOTE text QUOTE
+    ATTR_ID QUOTE text QUOTE 
 ;
 
 attr_style:
@@ -143,13 +144,17 @@ attr_value:
 ;
 
 img_tag:
-    IMG_OPEN img_attributes TAG_CLOSE //<img atributes >
+    IMG_OPEN img_attributes TAG_CLOSE {
+        id_flag = 0;
+    }
 ;
 
 img_attributes:
    |img_attributes ATTR_SRC QUOTE text QUOTE
    |img_attributes ATTR_ALT QUOTE text QUOTE 
-   |img_attributes attr_id //check again to make sure there can only be on id
+   |img_attributes attr_id {
+       check_id_flag(&id_flag);
+   }
    |img_attributes ATTR_HEIGHT INTEGER {if($3 <= 0) yyerror("height must a positive integer");}
    |img_attributes ATTR_WIDTH INTEGER  {if($3 <= 0) yyerror("width must a positive integer");}
 ;
@@ -215,6 +220,13 @@ text:
 ;
 %%
 /* C code */
+
+void check_id_flag(int* id){
+    (*id)++;
+    if(*id == 2){
+        yyerror("Duplicate attribute ");
+    }
+}
 
 int main(int argc, char** argv) {
     bool inputFromFile = false;
