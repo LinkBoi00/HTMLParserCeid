@@ -8,10 +8,15 @@
 
 %option stack
 
-%x TAG_START_STATE
+%x TAG_START_STATE COMMENT_STATE
 
 /* Rules */
 %%
+"<!--"                  { yy_push_state(COMMENT_STATE); }
+<COMMENT_STATE>"--"     { return ERROR; }
+<COMMENT_STATE>"-->"    { yy_pop_state(); }
+<COMMENT_STATE>.        { /*ignore the text in the comment*/ }
+
 "<MYHTML>"              { return MYHTML_OPEN; }
 "</MYHTML>"             { return MYHTML_CLOSE; }
 

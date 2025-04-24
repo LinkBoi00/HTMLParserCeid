@@ -32,7 +32,7 @@
 
 %token<str> QUOTED_STRING
 %token<num> NUMBER
-%token TEXT TAG_CLOSE
+%token TEXT TAG_CLOSE ERROR
 
 /* Rules */
 %%
