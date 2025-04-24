@@ -7,26 +7,38 @@
     #define YYDEBUG 1
 
     int id_flag=0;
+    int name_flag=0;
+    int content_flag=0;
+    int charset_flag=0;
+    int style_flag=0;
+    int type_flag=0;
+    int for_flag=0;
+    int href_flag=0;
+    int value_flag=0;
+    int src_flag=0;
+    int alt_flag=0;
+    int height_flag=0;
+    int width_flag=0;
+
     void check_id_flag(int* id);
+    void attr_error();
     extern int yylex(void);
     extern int yyerror(char* s);
     extern int lineNumber;
     extern FILE *yyin;
 %}
 
-/*for some reason it has warnings in grammar and crashes*/
-
 //επισης καθε ενα που εχει =πχ id μπορει να εχει κενα,μαλλον 
 //πρεπει να ορισουμε εναν κανονα = EQUALLS και να κανουμε αλλαγες ετσι 
 //ωστε αν υπαρχει κενο στο = να μην βγαλει λαθος
+
+//also title crashes when it sees a tag inside it.should it crash or shou it treat the tag as text?.
 
 %debug // TEMP: Enable debugging
 
 %union{
     int num;
 }
-
-%token COMMENT_OPEN COMMENT_CLOSE COMMENT_ERROR
 
 %token MYHTML_OPEN MYHTML_CLOSE
 
@@ -36,7 +48,7 @@
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 
 %token QUOTE TAG_CLOSE SINGLE_QUOTE
-%token TEXT
+%token TEXT ERROR
 
 %token IMG_OPEN ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH 
 %token<num> INTEGER
@@ -71,21 +83,26 @@ head_meta_section:
 ;
 
 meta_tag:
-    META_OPEN attr_name attr_content TAG_CLOSE
-    | META_OPEN attr_charset TAG_CLOSE
+    META_OPEN attr_name attr_content TAG_CLOSE {
+        name_flag=0;
+        content_flag=0;
+    }
+    | META_OPEN attr_charset TAG_CLOSE {
+        charset_flag=0;
+    }
 ;
 
 body:
-    BODY_OPEN body_tags BODY_CLOSE
+    BODY_OPEN body_children BODY_CLOSE
 ;
 
-body_tags:
+body_children:
     /* empty */
-    | body_tags p_tag
-    | body_tags a_tag
-    | body_tags img_tag 
-    | body_tags form_tag
-    | body_tags div_tag
+    | body_children p_tag
+    | body_children a_tag
+    | body_children img_tag 
+    | body_children form_tag
+    | body_children div_tag
 ;
 
 p_tag:
@@ -93,186 +110,229 @@ p_tag:
 ;
 
 p_section:
-    P_OPEN p_children TAG_CLOSE
+    P_OPEN p_attr TAG_CLOSE
     {
+        if(id_flag == 0 ) attr_error();
         id_flag=0;
+        style_flag=0;
     }
 ;
 
-p_children:
-    /*empty children this is a mistake its children cant be empty*/
-    |p_children attr_id
-    |p_children attr_style
+p_attr:
+    /*should not be empty*/
+    |p_attr attr_id
+    |p_attr attr_style
 ;
 
 a_tag:
-    a_tag_section text A_CLOSE 
-    | a_tag_section A_CLOSE
-    | a_tag_section text img_tag A_CLOSE
-    | a_tag_section img_tag text A_CLOSE
-    {
-        id_flag = 0;
-    }
+    a_tag_section text A_CLOSE
+    |a_tag_section text img_tag A_CLOSE //conflict with these 2 lines in case text is empty they are the same line essentially
+    |a_tag_section img_tag text A_CLOSE //the conflict lies here
 ;
 
 a_tag_section:
-    A_OPEN a_tag_children TAG_CLOSE{
+    A_OPEN a_attr TAG_CLOSE{
+        if(id_flag == 0 || href_flag == 0 ) attr_error();
         id_flag = 0;
+        href_flag = 0;
     }
 ;
 
-a_tag_children:
-    /* empty */
-    |a_tag_children attr_id
-    |a_tag_children attr_href
-;
-
-attr_name:
-    ATTR_NAME QUOTE text QUOTE
-;
-
-attr_content:
-    ATTR_CONTENT QUOTE text QUOTE
-;
-
-attr_charset:
-    ATTR_CHARSET QUOTE text QUOTE
-;
-
-attr_id:
-    ATTR_ID QUOTE text QUOTE {
-        check_id_flag(&id_flag);
-    }
-;
-
-attr_style:
-    ATTR_STYLE QUOTE text QUOTE
-;
-
-attr_type:
-    TYPE QUOTE text QUOTE
-;
-
-attr_for:
-    FOR QUOTE text QUOTE
-;
-
-attr_href:
-    ATTR_HREF QUOTE text QUOTE
-;
-
-attr_value:
-    VALUE SINGLE_QUOTE text SINGLE_QUOTE
+a_attr:
+     /*it shouldnt be empty but flags save us*/
+    |a_attr attr_id
+    |a_attr attr_href
 ;
 
 img_tag:
     IMG_OPEN img_attributes TAG_CLOSE {
+        if(id_flag == 0 || src_flag == 0 || alt_flag == 0) attr_error();
         id_flag = 0;
+        height_flag=0;
+        width_flag=0;
+        src_flag=0;
+        alt_flag=0;
     }
 ;
 
 img_attributes:
-   |img_attributes ATTR_SRC QUOTE text QUOTE
-   |img_attributes ATTR_ALT QUOTE text QUOTE 
+    /*there should not be an empty but our flag checks save us*/
+   |img_attributes attr_src
+   |img_attributes attr_alt
    |img_attributes attr_id 
-   |img_attributes ATTR_HEIGHT INTEGER {if($3 <= 0) yyerror("height must a positive integer");}
-   |img_attributes ATTR_WIDTH INTEGER  {if($3 <= 0) yyerror("width must a positive integer");}
+   |img_attributes ATTR_HEIGHT INTEGER {
+        if($3 <= 0) yyerror("height must a positive integer");
+        check_id_flag(&height_flag);
+    }
+   |img_attributes ATTR_WIDTH INTEGER  {
+        if($3 <= 0) yyerror("width must a positive integer");
+        check_id_flag(&width_flag);
+   }
 ;
 
 form_tag:
-    form_section form_body FORM_CLOSE
-    {
-        id_flag = 0;
-    }
+    form_section form_children FORM_CLOSE
 ;
 
 form_section:
-    /*wrong for some reason it has conflicts*/
-    |FORM_OPEN form_children TAG_CLOSE{
+    FORM_OPEN form_attr TAG_CLOSE{
+        if(id_flag == 0) attr_error();
         id_flag = 0;
+        style_flag = 0;
     }
+;
+
+form_attr:
+    /*form attributes cant be empty but in case it is empty our flag checks save us*/
+    |form_attr attr_id
+    |form_attr attr_style 
 ;
 
 form_children:
-    /*wrong should not be empty*/
-    |form_children attr_id
-    |form_children attr_style
-;
-
-form_body:
-    |form_body input_tag
-    |form_body label_tag
+    input_tag
+    | label_tag
+    |form_children input_tag 
+    |form_children label_tag 
 ;
 
 input_tag:
-    INPUT_OPEN input_section TAG_CLOSE //<input section >
+    INPUT_OPEN input_attr TAG_CLOSE //<input section >
     {
+        if(id_flag == 0 || type_flag == 0) attr_error();
         id_flag = 0;
+        type_flag = 0;
+        style_flag=0;
+        value_flag=0;
     }
 ;
 
-input_section:
-    |input_section attr_type
-    |input_section attr_id
-    |input_section attr_style
-    |input_section attr_value
+input_attr:
+    /*error should not be empty flag checks save us*/
+    |input_attr attr_type
+    |input_attr attr_id
+    |input_attr attr_style
+    |input_attr attr_value
 ;
 
 label_tag:
-    label_section text LABEL_CLOSE{
-        id_flag = 0;
-    }
+    label_section text LABEL_CLOSE
 ;
 
 label_section:
-    LABEL_OPEN label_children TAG_CLOSE{
+    LABEL_OPEN label_attr TAG_CLOSE{
+        if(id_flag == 0 || for_flag == 0) attr_error();
         id_flag=0;
+        for_flag=0;
+        style_flag=0;
     }
 ;
 
-label_children:
+label_attr:
     /*empty*/
-    |label_children attr_for
-    |label_children attr_style
-    |label_children attr_id
+    |label_attr attr_for
+    |label_attr attr_style
+    |label_attr attr_id
 ;
 
 div_tag:
-    div_section div_children DIV_CLOSE//<div id style > <a> <p> ... </div>
-    {
-        id_flag = 0;
-    }
+    div_section div_children DIV_CLOSE
     |div_section /*empty*/  DIV_CLOSE
 ;
 
 div_section:
     DIV_OPEN div_attr TAG_CLOSE{
+        if(id_flag==0) attr_error();
         id_flag=0;
+        style_flag=0;
     }
 ;
 
 div_attr:
+    /*empty rule but flag checks save us again*/
     |div_attr attr_style
     |div_attr attr_id
 ;
 
 div_children:
+    p_tag
+    |a_tag
+    |img_tag
+    |form_tag
     |div_children p_tag
     |div_children a_tag
     |div_children img_tag
     |div_children form_tag
 ;
 
+attr_name:
+    ATTR_NAME  QUOTE text QUOTE{
+        check_id_flag(&name_flag);
+    }
+;
 
-//comment:
-//    /* empty */
-//    |COMMENT_OPEN /*no text*/  COMMENT_CLOSE
-//    |COMMENT_OPEN text COMMENT_CLOSE
-//;
+attr_content:
+    ATTR_CONTENT  QUOTE text QUOTE{
+        check_id_flag(&content_flag);
+    }
+;
 
+attr_charset:
+    ATTR_CHARSET  QUOTE text QUOTE {
+        check_id_flag(&charset_flag);
+    }
+;
+
+attr_id:
+    ATTR_ID  QUOTE text QUOTE {
+        check_id_flag(&id_flag);
+    }
+;
+
+attr_style:
+    ATTR_STYLE  QUOTE text QUOTE {
+        check_id_flag(&style_flag);
+    }
+;
+
+attr_type:
+    TYPE  QUOTE text QUOTE {
+        check_id_flag(&type_flag);
+    }
+;
+
+attr_for:
+    FOR  QUOTE text QUOTE {
+        check_id_flag(&for_flag);
+    }
+;
+
+attr_href:
+    ATTR_HREF  QUOTE text QUOTE {
+        check_id_flag(&href_flag);
+    }
+;
+
+attr_value:
+    VALUE  SINGLE_QUOTE text SINGLE_QUOTE {
+        check_id_flag(&value_flag);
+    }
+;
+
+attr_src:
+    ATTR_SRC  QUOTE text QUOTE {
+        check_id_flag(&src_flag);
+    }
+;
+
+attr_alt:
+    ATTR_ALT  QUOTE text QUOTE {
+        check_id_flag(&alt_flag);
+    }
+;
+ 
 text:
-    TEXT
-    | text TEXT
+    
+    |text TEXT
 ;
 %%
 /* C code */
@@ -283,6 +343,10 @@ void check_id_flag(int* id){
         yyerror("Duplicate attribute ");
     }
     //printf("line:%d id:%d\n",lineNumber,id_flag);
+}
+
+void attr_error(){
+    yyerror("too few attributes");
 }
 
 int main(int argc, char** argv) {

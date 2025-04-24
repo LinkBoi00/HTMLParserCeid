@@ -18,4 +18,4 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 run:
-	./$(OUTPUT_FILE) test.txt
+	./$(OUTPUT_FILE) test_files/test.txt
