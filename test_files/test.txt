@@ -11,12 +11,12 @@
 <body>
     <p id="par1" style="">This is my project.</p>
     
-    <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
+    <img src="image.jpg" id="myimg123" alt="Example Image" height= 9 width =10 >
     
-    <div id="div1" style="color:blue"> 
+    <div id = "div1" style ="color:blue"> 
         <a id="hyper" href="https://arxes.ceid.gr">
             Here comes an image. <!--this an image comment-->
-            <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
+            <img src="image.jpg" id="myimg123" alt="Example Image"  height=9 width = 10 >
         </a> 
     </div>
     

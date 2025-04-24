@@ -11,6 +11,8 @@
 
 /* Rules */
 %%
+"="                    { return EQUALLS;}
+[>]                     { return TAG_CLOSE; }
 "<!--"                  {yy_push_state(COMMENT_STATE);}
 <COMMENT_STATE>"--"     { return ERROR; }
 <COMMENT_STATE>"-->"    {yy_pop_state(); /*return to previous state*/}
@@ -32,19 +34,21 @@
 "</a>"                  { return A_CLOSE; }
 
 "<meta"                 { return META_OPEN; }
-"name="                 { return ATTR_NAME; }
-"content="              { return ATTR_CONTENT; }
-"charset="              { return ATTR_CHARSET; }
+"name"                  { return ATTR_NAME; }
+"content"               { return ATTR_CONTENT; }
+"charset"               { return ATTR_CHARSET; }
 
-"id="                   { return ATTR_ID; }
-"style="                { return ATTR_STYLE; }
-"href="                 { return ATTR_HREF; }
+"id"                    { return ATTR_ID; }
+"style"                 { return ATTR_STYLE; }
+"href"                  { return ATTR_HREF; }
 
 "<img"                  { return IMG_OPEN; }
-"src="                  { return ATTR_SRC; }
-"alt="                  { return ATTR_ALT; }
-"height="               { yy_push_state(IMG_STATE); return ATTR_HEIGHT; }
-"width="                { yy_push_state(IMG_STATE); return ATTR_WIDTH; }
+"src"                   { return ATTR_SRC; }
+"alt"                   { return ATTR_ALT; }
+"height"                { yy_push_state(IMG_STATE); return ATTR_HEIGHT; }
+"width"                 { yy_push_state(IMG_STATE); return ATTR_WIDTH; }
+<IMG_STATE>"="          { /*ignore =*/ }
+<IMG_STATE>[ \t\r]+         { /*ignore whitespace*/ }
 <IMG_STATE>[0-9]+       { yy_pop_state(); yylval.num = atoi(yytext); return INTEGER; }
 <IMG_STATE>-[0-9]+      { yy_pop_state(); yylval.num = atoi(yytext); return INTEGER; }
 
@@ -54,18 +58,16 @@
 
 "<label"                { return LABEL_OPEN; }
 "</label>"              { return LABEL_CLOSE; }
-"for="                  { return FOR; }
-"type="                 { return TYPE; }
-"value="                { return VALUE;}
+"for"                   { return FOR; }
+"type"                  { return TYPE; }
+"value"                 { return VALUE;}
 
 "<div"                  { return DIV_OPEN; }
 "</div>"                { return DIV_CLOSE; }
 
-["]                     { return QUOTE; }
-[']                     { return SINGLE_QUOTE;}
-">"                     { return TAG_CLOSE; }  
-
+\"[^\"]*\"              { return TEXT; } //reads double quotes
+\'[^\"]*\'              { return TEXT; } //reads single quotes
 [ \t\r]+                { /* Ignore whitespaces */ }
 \n                      { lineNumber++; }
-.                       { return TEXT; }
+.                       { /*do nothing*/ }
 %%

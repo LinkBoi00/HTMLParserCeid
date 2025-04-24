@@ -8,7 +8,7 @@
 <body>
     <p id="par1" style="">This is my project.</p>
     
-    <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
+    <img src="image.jpg" id="myimg123" alt="Example Image" height =9 width= 10 >
     
     <div id="div1" style="color:blue"> 
         <a id="hyper" href="https://arxes.ceid.gr">

@@ -28,10 +28,6 @@
     extern FILE *yyin;
 %}
 
-//επισης καθε ενα που εχει =πχ id μπορει να εχει κενα,μαλλον 
-//πρεπει να ορισουμε εναν κανονα = EQUALLS και να κανουμε αλλαγες ετσι 
-//ωστε αν υπαρχει κενο στο = να μην βγαλει λαθος
-
 //also title crashes when it sees a tag inside it.should it crash or shou it treat the tag as text?.
 
 %debug // TEMP: Enable debugging
@@ -47,8 +43,8 @@
 
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 
-%token QUOTE TAG_CLOSE SINGLE_QUOTE
-%token TEXT ERROR
+%token TAG_CLOSE
+%token TEXT ERROR EQUALLS
 
 %token IMG_OPEN ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH 
 %token<num> INTEGER
@@ -265,73 +261,73 @@ div_children:
 ;
 
 attr_name:
-    ATTR_NAME  QUOTE text QUOTE{
+    ATTR_NAME EQUALLS text {
         check_id_flag(&name_flag);
     }
 ;
 
 attr_content:
-    ATTR_CONTENT  QUOTE text QUOTE{
+    ATTR_CONTENT EQUALLS text  {
         check_id_flag(&content_flag);
     }
 ;
 
 attr_charset:
-    ATTR_CHARSET  QUOTE text QUOTE {
+    ATTR_CHARSET EQUALLS text  {
         check_id_flag(&charset_flag);
     }
 ;
 
 attr_id:
-    ATTR_ID  QUOTE text QUOTE {
+    ATTR_ID EQUALLS  text  {
         check_id_flag(&id_flag);
     }
 ;
 
 attr_style:
-    ATTR_STYLE  QUOTE text QUOTE {
+    ATTR_STYLE EQUALLS  text  {
         check_id_flag(&style_flag);
     }
 ;
 
 attr_type:
-    TYPE  QUOTE text QUOTE {
+    TYPE EQUALLS  text  {
         check_id_flag(&type_flag);
     }
 ;
 
 attr_for:
-    FOR  QUOTE text QUOTE {
+    FOR EQUALLS  text  {
         check_id_flag(&for_flag);
     }
 ;
 
 attr_href:
-    ATTR_HREF  QUOTE text QUOTE {
+    ATTR_HREF EQUALLS  text  {
         check_id_flag(&href_flag);
     }
 ;
 
 attr_value:
-    VALUE  SINGLE_QUOTE text SINGLE_QUOTE {
+    VALUE EQUALLS text {
         check_id_flag(&value_flag);
     }
 ;
 
 attr_src:
-    ATTR_SRC  QUOTE text QUOTE {
+    ATTR_SRC EQUALLS text {
         check_id_flag(&src_flag);
     }
 ;
 
 attr_alt:
-    ATTR_ALT  QUOTE text QUOTE {
+    ATTR_ALT EQUALLS text  {
         check_id_flag(&alt_flag);
     }
 ;
  
 text:
-    
+        
     |text TEXT
 ;
 %%
@@ -342,7 +338,6 @@ void check_id_flag(int* id){
     if(*id == 2){
         yyerror("Duplicate attribute ");
     }
-    //printf("line:%d id:%d\n",lineNumber,id_flag);
 }
 
 void attr_error(){
