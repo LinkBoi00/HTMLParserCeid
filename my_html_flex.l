@@ -40,19 +40,19 @@
 "<div"                  { yy_push_state(TAG_START_STATE); return DIV_OPEN; }
 "</div>"                { return DIV_CLOSE; }
 
-<TAG_START_STATE>"name="                 { return ATTR_NAME; }
-<TAG_START_STATE>"content="              { return ATTR_CONTENT; }
-<TAG_START_STATE>"charset="              { return ATTR_CHARSET; }
-<TAG_START_STATE>"id="                   { return ATTR_ID; }
-<TAG_START_STATE>"style="                { return ATTR_STYLE; }
-<TAG_START_STATE>"href="                 { return ATTR_HREF; }
-<TAG_START_STATE>"src="                  { return ATTR_SRC; }
-<TAG_START_STATE>"alt="                  { return ATTR_ALT; }
-<TAG_START_STATE>"height="               { return ATTR_HEIGHT; }
-<TAG_START_STATE>"width="                { return ATTR_WIDTH; }
-<TAG_START_STATE>"for="                  { return ATTR_FOR; }
-<TAG_START_STATE>"type="                 { return ATTR_TYPE; }
-<TAG_START_STATE>"value="                { return ATTR_VALUE; }
+<TAG_START_STATE>"name"[ \t\r]*"="                 { return ATTR_NAME; }
+<TAG_START_STATE>"content"[ \t\r]*"="              { return ATTR_CONTENT; }
+<TAG_START_STATE>"charset"[ \t\r]*"="              { return ATTR_CHARSET; }
+<TAG_START_STATE>"id"[ \t\r]*"="                   { return ATTR_ID; }
+<TAG_START_STATE>"style"[ \t\r]*"="                { return ATTR_STYLE; }
+<TAG_START_STATE>"href"[ \t\r]*"="                 { return ATTR_HREF; }
+<TAG_START_STATE>"src"[ \t\r]*"="                  { return ATTR_SRC; }
+<TAG_START_STATE>"alt"[ \t\r]*"="                  { return ATTR_ALT; }
+<TAG_START_STATE>"height"[ \t\r]*"="               { return ATTR_HEIGHT; }
+<TAG_START_STATE>"width"[ \t\r]*"="                { return ATTR_WIDTH; }
+<TAG_START_STATE>"for"[ \t\r]*"="                  { return ATTR_FOR; }
+<TAG_START_STATE>"type"[ \t\r]*"="                 { return ATTR_TYPE; }
+<TAG_START_STATE>"value"[ \t\r]*"="                { return ATTR_VALUE; }
 
 <TAG_START_STATE>\"[^"]*\"               { return QUOTED_STRING; }
 <TAG_START_STATE>\'[^']*\'               { return QUOTED_STRING; }

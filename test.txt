@@ -6,7 +6,7 @@
     <meta name="author" content="Input your name here">
 </head>
 <body>
-    <p id="par1" style="color:blue">This is my project.</p>
+    <p id = "par1" style="color:blue">This is my project.</p>
     <a id="hyper" href="https://arxes.ceid.gr">
         Here comes an image.
     </a>
@@ -20,7 +20,7 @@
 
     <div id="div1" style="color:blue">
         <!-- comment -->
-        <a id="hyper" href="https://arxes.ceid.gr">
+        <a id="hyper" href= "https://arxes.ceid.gr">
             Here comes an image. <!-- gamw thn athina -->
             <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
         </a>
@@ -29,7 +29,7 @@
     <!-- gamw thn kalamata -->
     
     <form id="form1">
-        <label for="name" id="label1">Name:</label>
+        <label for ="name" id="label1">Name:</label>
         <input type="text" id="name">
         <label id="label2" for="lastname">last Name:</label>
         <input type="text" id="lastname">
