@@ -54,17 +54,8 @@
 <TAG_START_STATE>"type="                 { return ATTR_TYPE; }
 <TAG_START_STATE>"value="                { return ATTR_VALUE; }
 
-<TAG_START_STATE>\"[^"]*\"   { 
-    yylval.str = strdup(yytext + 1);
-    yylval.str[strlen(yylval.str) - 1] = '\0';
-    return QUOTED_STRING; 
-}
-
-<TAG_START_STATE>\'[^']*\'   { 
-    yylval.str = strdup(yytext + 1);
-    yylval.str[strlen(yylval.str) - 1] = '\0';
-    return QUOTED_STRING; 
-}
+<TAG_START_STATE>\"[^"]*\"               { return QUOTED_STRING; }
+<TAG_START_STATE>\'[^']*\'               { return QUOTED_STRING; }
 
 <TAG_START_STATE>-?[0-9]+                { yylval.num = atoi(yytext); return NUMBER; }
 <TAG_START_STATE>">"                     { yy_pop_state(); return TAG_CLOSE; }

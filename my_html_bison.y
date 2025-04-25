@@ -8,7 +8,6 @@
 
     extern int yylex(void);
     extern int yyerror(char* s);
-
     extern int lineNumber;
     extern FILE *yyin;
 
@@ -32,12 +31,10 @@
 }
 
 %debug // TEMP: Enable debugging
-%destructor { if ($$) free($$); } <str>
 
 %union {
     Attributes attrs;
     int num;
-    char* str;
 }
 
 %token MYHTML_OPEN MYHTML_CLOSE
@@ -49,7 +46,7 @@
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 %token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
 
-%token<str> QUOTED_STRING
+%token QUOTED_STRING
 %token<num> NUMBER
 %token TEXT TAG_CLOSE ERROR
 
@@ -288,9 +285,7 @@ attr_value:
 
 text:
     TEXT
-    | NUMBER
     | text TEXT
-    | text NUMBER
 ;
 %%
 
