@@ -153,10 +153,12 @@ label_tag:
 ;
 
 label_attributes:
-    /* Should not be empty */
-    | label_attributes attr_for
-    | label_attributes attr_style
-    | label_attributes attr_id
+    attr_id attr_for
+    | attr_for attr_id
+    | attr_id attr_for attr_style
+    | attr_id attr_style attr_for
+    | attr_style attr_id attr_for
+    | attr_style attr_for attr_id
 ;
 
 div_tag:
