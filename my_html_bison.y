@@ -15,15 +15,22 @@
 
 %debug // TEMP: Enable debugging
 
+%union {
+    int num;
+}
+
 %token MYHTML_OPEN MYHTML_CLOSE
 
 %token HEAD_OPEN HEAD_CLOSE BODY_OPEN BODY_CLOSE
-%token TITLE_OPEN TITLE_CLOSE META_OPEN P_OPEN P_CLOSE
+%token TITLE_OPEN TITLE_CLOSE META_OPEN P_OPEN P_CLOSE A_OPEN A_CLOSE
+%token IMG_OPEN
 
-%token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE
+%token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
+%token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH
 
 %token QUOTE TAG_CLOSE
-%token TEXT
+%token<num> NUMBER
+%token TEXT 
 
 /* Rules */
 %%
@@ -55,11 +62,37 @@ meta_tag:
 ;
 
 body:
-    BODY_OPEN p_tag BODY_CLOSE
+    BODY_OPEN body_tags BODY_CLOSE
+;
+
+body_tags:
+    /* empty */
+    | body_tags p_tag
+    | body_tags a_tag
+    | body_tags img_tag
 ;
 
 p_tag:
     P_OPEN attr_id attr_style TAG_CLOSE text P_CLOSE
+    | P_OPEN attr_id TAG_CLOSE text P_CLOSE
+;
+
+a_tag:
+    A_OPEN attr_id attr_href TAG_CLOSE text A_CLOSE
+    | A_OPEN attr_id attr_href TAG_CLOSE A_CLOSE
+;
+
+img_tag:
+    IMG_OPEN img_attributes TAG_CLOSE
+;
+
+img_attributes:
+    /* empty */
+   | img_attributes attr_src
+   | img_attributes attr_alt
+   | img_attributes attr_id
+   | img_attributes attr_height
+   | img_attributes attr_width
 ;
 
 attr_name:
@@ -82,9 +115,31 @@ attr_style:
     ATTR_STYLE QUOTE text QUOTE
 ;
 
+attr_href:
+    ATTR_HREF QUOTE text QUOTE
+;
+
+attr_src:
+    ATTR_SRC QUOTE text QUOTE
+;
+
+attr_alt:
+    ATTR_ALT QUOTE text QUOTE 
+;
+
+attr_height:
+    ATTR_HEIGHT NUMBER { if($2 <= 0) yyerror("Height must a positive integer"); }
+;
+
+attr_width:
+    ATTR_WIDTH NUMBER  { if($2 <= 0) yyerror("Width must a positive integer"); }
+;
+
 text:
     TEXT
+    | NUMBER
     | text TEXT
+    | text NUMBER
 ;
 %%
 
@@ -92,7 +147,7 @@ text:
 int main(int argc, char** argv) {
     bool inputFromFile = false;
 
-    yydebug = 1; // TEMP: Enable debugging
+    yydebug = 0; // TEMP: Enable debugging
 
     // Determine if we will be using a file or stdin as input
     if (argc > 1)

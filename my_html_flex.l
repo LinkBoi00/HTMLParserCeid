@@ -21,17 +21,26 @@
 "</body>"               { return BODY_CLOSE; }
 "<p"                    { return P_OPEN; }
 "</p>"                  { return P_CLOSE; }
+"<a"                    { return A_OPEN; }
+"</a>"                  { return A_CLOSE; }
+"<img"                  { return IMG_OPEN; }
 
 "name="                 { return ATTR_NAME; }
 "content="              { return ATTR_CONTENT; }
 "charset="              { return ATTR_CHARSET; }
 "id="                   { return ATTR_ID; }
 "style="                { return ATTR_STYLE; }
+"href="                 { return ATTR_HREF; }
+"src="                  { return ATTR_SRC; }
+"alt="                  { return ATTR_ALT; }
+"height="               { return ATTR_HEIGHT; }
+"width="                { return ATTR_WIDTH; }
 
 ["]                     { return QUOTE; }
 ">"                     { return TAG_CLOSE; }
 
 [ \t\r]+                { /* Ignore whitespaces */ }
 \n                      { lineNumber++; }
+-?[0-9]+                { yylval.num = atoi(yytext); return NUMBER; }
 .                       { return TEXT; }
 %%
