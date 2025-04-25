@@ -13,10 +13,27 @@
     extern FILE *yyin;
 %}
 
+%code requires {
+    struct Attributes {
+        int has_id;
+        int has_src;
+        int has_alt;
+        int has_type;
+        int has_width;
+        int has_height;
+        int has_style;
+        int has_value;
+    } typedef Attributes;
+
+    void validateImgAttrs(Attributes attrs);
+    void validateInputAttrs(Attributes attrs);
+}
+
 %debug // TEMP: Enable debugging
 %destructor { if ($$) free($$); } <str>
 
 %union {
+    Attributes attrs;
     int num;
     char* str;
 }
@@ -33,6 +50,8 @@
 %token<str> QUOTED_STRING
 %token<num> NUMBER
 %token TEXT TAG_CLOSE ERROR
+
+%type<attrs> img_attributes input_attributes
 
 /* Rules */
 %%
@@ -108,16 +127,35 @@ a_tag_attributes:
 ;
 
 img_tag:
-    IMG_OPEN img_attributes TAG_CLOSE
+    IMG_OPEN img_attributes TAG_CLOSE {
+        validateImgAttrs($2);
+    }
 ;
 
 img_attributes:
-    /* Should not be empty */
-   | img_attributes attr_src
-   | img_attributes attr_alt
-   | img_attributes attr_id
-   | img_attributes attr_height
-   | img_attributes attr_width
+    {
+        $$ = (Attributes){0, 0, 0, 0, 0, 0, 0, 0};
+    }
+   | img_attributes attr_src {
+        $$ = $1;
+        $$.has_src++;
+   }
+   | img_attributes attr_alt {
+        $$ = $1;
+        $$.has_alt++;
+   }
+   | img_attributes attr_id {
+        $$ = $1;
+        $$.has_id++;
+   }
+   | img_attributes attr_height {
+        $$ = $1;
+        $$.has_height++;
+   }
+   | img_attributes attr_width {
+        $$ = $1;
+        $$.has_width++;
+   }
 ;
 
 form_tag:
@@ -137,15 +175,31 @@ form_children:
 ;
 
 input_tag:
-    INPUT_OPEN input_attributes TAG_CLOSE
+    INPUT_OPEN input_attributes TAG_CLOSE {
+        validateInputAttrs($2);
+    }
 ;
 
 input_attributes:
-    /* Should not be empty */ 
-    | input_attributes attr_type
-    | input_attributes attr_id
-    | input_attributes attr_style
-    | input_attributes attr_value
+    {
+        $$ = (Attributes){0, 0, 0, 0, 0, 0, 0, 0};
+    }
+    | input_attributes attr_type {
+        $$ = $1;
+        $$.has_type++;
+   }
+    | input_attributes attr_id {
+        $$ = $1;
+        $$.has_id++;
+   }
+    | input_attributes attr_style {
+        $$ = $1;
+        $$.has_style++;
+   }
+    | input_attributes attr_value {
+        $$ = $1;
+        $$.has_value++;
+   }
 ;
 
 label_tag:
@@ -268,6 +322,25 @@ int main(int argc, char** argv) {
         fclose(yyin);
 
     return 0;
+}
+
+void validateImgAttrs(Attributes attrs) {
+    if (attrs.has_id != 1 || attrs.has_src != 1 || attrs.has_alt != 1) {
+        yyerror("img tag requires exactly one each of: id, src, alt");
+    }
+    if (attrs.has_width > 1 || attrs.has_height > 1) {
+        yyerror("img tag allows at most one each of optional: width, height");
+    }
+}
+
+void validateInputAttrs(Attributes attrs) {
+    if (attrs.has_id != 1 || attrs.has_type != 1) {
+        yyerror("input tag requires exactly one each of: id, type");
+    }
+
+    if (attrs.has_value > 1 || attrs.has_style > 1) {
+        yyerror("input tag allows at most one each of optional: value, style");
+    }
 }
 
 int yyerror(char* s) {
