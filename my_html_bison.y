@@ -23,10 +23,10 @@
 
 %token HEAD_OPEN HEAD_CLOSE BODY_OPEN BODY_CLOSE
 %token TITLE_OPEN TITLE_CLOSE META_OPEN P_OPEN P_CLOSE A_OPEN A_CLOSE
-%token IMG_OPEN
+%token IMG_OPEN FORM_OPEN FORM_CLOSE LABEL_OPEN LABEL_CLOSE INPUT_OPEN
 
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
-%token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH
+%token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
 
 %token QUOTE TAG_CLOSE
 %token<num> NUMBER
@@ -70,6 +70,7 @@ body_tags:
     | body_tags p_tag
     | body_tags a_tag
     | body_tags img_tag
+    | body_tags form_tag
 ;
 
 p_tag:
@@ -93,6 +94,38 @@ img_attributes:
    | img_attributes attr_id
    | img_attributes attr_height
    | img_attributes attr_width
+;
+
+form_tag:
+    FORM_OPEN attr_id attr_style TAG_CLOSE form_children FORM_CLOSE
+    | FORM_OPEN attr_id TAG_CLOSE form_children FORM_CLOSE
+;
+
+form_children:
+    | form_children input_tag
+    | form_children label_tag
+;
+
+input_tag:
+    INPUT_OPEN input_attributes TAG_CLOSE
+;
+
+input_attributes:
+    /* empty */ 
+    | input_attributes attr_type
+    | input_attributes attr_id
+    | input_attributes attr_style
+    | input_attributes attr_value
+;
+
+label_tag:
+    LABEL_OPEN label_attributes TAG_CLOSE text LABEL_CLOSE
+;
+
+label_attributes:
+    | label_attributes attr_for
+    | label_attributes attr_style
+    | label_attributes attr_id
 ;
 
 attr_name:
@@ -133,6 +166,18 @@ attr_height:
 
 attr_width:
     ATTR_WIDTH NUMBER  { if($2 <= 0) yyerror("Width must a positive integer"); }
+;
+
+attr_type:
+    ATTR_TYPE QUOTE text QUOTE
+;
+
+attr_for:
+    ATTR_FOR QUOTE text QUOTE
+;
+
+attr_value:
+    ATTR_VALUE QUOTE text QUOTE
 ;
 
 text:

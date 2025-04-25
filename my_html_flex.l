@@ -5,8 +5,6 @@
     int lineNumber = 1;
 %}
 
-%x ATTR_VALUE TEXT_VALUE
-
 /* Rules */
 %%
 "<MYHTML>"              { return MYHTML_OPEN; }
@@ -24,6 +22,11 @@
 "<a"                    { return A_OPEN; }
 "</a>"                  { return A_CLOSE; }
 "<img"                  { return IMG_OPEN; }
+"<form"                 { return FORM_OPEN; }
+"</form>"               { return FORM_CLOSE;}
+"<input"                { return INPUT_OPEN; }
+"<label"                { return LABEL_OPEN; }
+"</label>"              { return LABEL_CLOSE; }
 
 "name="                 { return ATTR_NAME; }
 "content="              { return ATTR_CONTENT; }
@@ -35,6 +38,9 @@
 "alt="                  { return ATTR_ALT; }
 "height="               { return ATTR_HEIGHT; }
 "width="                { return ATTR_WIDTH; }
+"for="                  { return ATTR_FOR; }
+"type="                 { return ATTR_TYPE; }
+"value="                { return ATTR_VALUE; }
 
 ["]                     { return QUOTE; }
 ">"                     { return TAG_CLOSE; }
