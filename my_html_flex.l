@@ -27,6 +27,8 @@
 "<input"                { return INPUT_OPEN; }
 "<label"                { return LABEL_OPEN; }
 "</label>"              { return LABEL_CLOSE; }
+"<div"                  { return DIV_OPEN; }
+"</div>"                { return DIV_CLOSE; }
 
 "name="                 { return ATTR_NAME; }
 "content="              { return ATTR_CONTENT; }

@@ -23,7 +23,7 @@
 
 %token HEAD_OPEN HEAD_CLOSE BODY_OPEN BODY_CLOSE
 %token TITLE_OPEN TITLE_CLOSE META_OPEN P_OPEN P_CLOSE A_OPEN A_CLOSE
-%token IMG_OPEN FORM_OPEN FORM_CLOSE LABEL_OPEN LABEL_CLOSE INPUT_OPEN
+%token IMG_OPEN FORM_OPEN FORM_CLOSE LABEL_OPEN LABEL_CLOSE INPUT_OPEN DIV_OPEN DIV_CLOSE
 
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 %token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
@@ -57,8 +57,12 @@ head_meta_section:
 ;
 
 meta_tag:
-    META_OPEN attr_name attr_content TAG_CLOSE
-    | META_OPEN attr_charset TAG_CLOSE
+    META_OPEN meta_tag_attributes TAG_CLOSE
+;
+
+meta_tag_attributes:
+    attr_name attr_content
+    | attr_charset
 ;
 
 body:
@@ -71,16 +75,34 @@ body_tags:
     | body_tags a_tag
     | body_tags img_tag
     | body_tags form_tag
+    | body_tags div_tag
 ;
 
 p_tag:
-    P_OPEN attr_id attr_style TAG_CLOSE text P_CLOSE
-    | P_OPEN attr_id TAG_CLOSE text P_CLOSE
+    P_OPEN p_tag_attributes TAG_CLOSE /* empty */ P_CLOSE
+    | P_OPEN p_tag_attributes TAG_CLOSE text P_CLOSE
+;
+
+p_tag_attributes:
+    attr_id
+    | attr_id attr_style
+    | attr_style attr_id
 ;
 
 a_tag:
-    A_OPEN attr_id attr_href TAG_CLOSE text A_CLOSE
-    | A_OPEN attr_id attr_href TAG_CLOSE A_CLOSE
+    a_tag_section /* empty */ A_CLOSE
+    | a_tag_section img_tag text A_CLOSE
+    | a_tag_section text img_tag A_CLOSE
+    | a_tag_section text A_CLOSE
+;
+
+a_tag_section:
+    A_OPEN a_tag_attributes TAG_CLOSE
+;
+
+a_tag_attributes:
+    attr_id attr_href
+    | attr_href attr_id
 ;
 
 img_tag:
@@ -88,7 +110,7 @@ img_tag:
 ;
 
 img_attributes:
-    /* empty */
+    /* Should not be empty */
    | img_attributes attr_src
    | img_attributes attr_alt
    | img_attributes attr_id
@@ -97,11 +119,17 @@ img_attributes:
 ;
 
 form_tag:
-    FORM_OPEN attr_id attr_style TAG_CLOSE form_children FORM_CLOSE
-    | FORM_OPEN attr_id TAG_CLOSE form_children FORM_CLOSE
+    FORM_OPEN form_attributes TAG_CLOSE form_children FORM_CLOSE
+;
+
+form_attributes:
+    attr_id
+    | attr_id attr_style
 ;
 
 form_children:
+    input_tag
+    | label_tag
     | form_children input_tag
     | form_children label_tag
 ;
@@ -111,7 +139,7 @@ input_tag:
 ;
 
 input_attributes:
-    /* empty */ 
+    /* Should not be empty */ 
     | input_attributes attr_type
     | input_attributes attr_id
     | input_attributes attr_style
@@ -123,9 +151,27 @@ label_tag:
 ;
 
 label_attributes:
+    /* Should not be empty */
     | label_attributes attr_for
     | label_attributes attr_style
     | label_attributes attr_id
+;
+
+div_tag:
+    DIV_OPEN div_attributes TAG_CLOSE div_children DIV_CLOSE
+;
+
+div_attributes:
+    attr_id attr_style
+    | attr_style attr_id
+;
+
+div_children:
+    /* empty */
+    | div_children p_tag
+    | div_children a_tag
+    | div_children img_tag
+    | div_children form_tag
 ;
 
 attr_name:
