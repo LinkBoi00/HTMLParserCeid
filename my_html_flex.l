@@ -1,9 +1,14 @@
 /* Declarations */
 %{
     #include "my_html_bison.tab.h"
+    #include <string.h>
 
     int lineNumber = 1;
 %}
+
+%option stack
+
+%x TAG_START_STATE
 
 /* Rules */
 %%
@@ -14,41 +19,46 @@
 "</head>"               { return HEAD_CLOSE; }
 "<title>"               { return TITLE_OPEN; }
 "</title>"              { return TITLE_CLOSE; }
-"<meta"                 { return META_OPEN; }
+"<meta"                 { yy_push_state(TAG_START_STATE); return META_OPEN; }
 "<body>"                { return BODY_OPEN; }
 "</body>"               { return BODY_CLOSE; }
-"<p"                    { return P_OPEN; }
+"<p"                    { yy_push_state(TAG_START_STATE); return P_OPEN; }
 "</p>"                  { return P_CLOSE; }
-"<a"                    { return A_OPEN; }
+"<a"                    { yy_push_state(TAG_START_STATE); return A_OPEN; }
 "</a>"                  { return A_CLOSE; }
-"<img"                  { return IMG_OPEN; }
-"<form"                 { return FORM_OPEN; }
+"<img"                  { yy_push_state(TAG_START_STATE); return IMG_OPEN; }
+"<form"                 { yy_push_state(TAG_START_STATE); return FORM_OPEN; }
 "</form>"               { return FORM_CLOSE;}
-"<input"                { return INPUT_OPEN; }
-"<label"                { return LABEL_OPEN; }
+"<input"                { yy_push_state(TAG_START_STATE); return INPUT_OPEN; }
+"<label"                { yy_push_state(TAG_START_STATE); return LABEL_OPEN; }
 "</label>"              { return LABEL_CLOSE; }
-"<div"                  { return DIV_OPEN; }
+"<div"                  { yy_push_state(TAG_START_STATE); return DIV_OPEN; }
 "</div>"                { return DIV_CLOSE; }
 
-"name="                 { return ATTR_NAME; }
-"content="              { return ATTR_CONTENT; }
-"charset="              { return ATTR_CHARSET; }
-"id="                   { return ATTR_ID; }
-"style="                { return ATTR_STYLE; }
-"href="                 { return ATTR_HREF; }
-"src="                  { return ATTR_SRC; }
-"alt="                  { return ATTR_ALT; }
-"height="               { return ATTR_HEIGHT; }
-"width="                { return ATTR_WIDTH; }
-"for="                  { return ATTR_FOR; }
-"type="                 { return ATTR_TYPE; }
-"value="                { return ATTR_VALUE; }
+<TAG_START_STATE>"name="                 { return ATTR_NAME; }
+<TAG_START_STATE>"content="              { return ATTR_CONTENT; }
+<TAG_START_STATE>"charset="              { return ATTR_CHARSET; }
+<TAG_START_STATE>"id="                   { return ATTR_ID; }
+<TAG_START_STATE>"style="                { return ATTR_STYLE; }
+<TAG_START_STATE>"href="                 { return ATTR_HREF; }
+<TAG_START_STATE>"src="                  { return ATTR_SRC; }
+<TAG_START_STATE>"alt="                  { return ATTR_ALT; }
+<TAG_START_STATE>"height="               { return ATTR_HEIGHT; }
+<TAG_START_STATE>"width="                { return ATTR_WIDTH; }
+<TAG_START_STATE>"for="                  { return ATTR_FOR; }
+<TAG_START_STATE>"type="                 { return ATTR_TYPE; }
+<TAG_START_STATE>"value="                { return ATTR_VALUE; }
 
-["]                     { return QUOTE; }
-">"                     { return TAG_CLOSE; }
+<TAG_START_STATE>\"[^"]*\"   { 
+    yylval.str = strdup(yytext + 1);
+    yylval.str[strlen(yylval.str) - 1] = '\0';
+    return QUOTED_STRING; 
+}
 
-[ \t\r]+                { /* Ignore whitespaces */ }
-\n                      { lineNumber++; }
--?[0-9]+                { yylval.num = atoi(yytext); return NUMBER; }
-.                       { return TEXT; }
+<TAG_START_STATE>-?[0-9]+                { yylval.num = atoi(yytext); return NUMBER; }
+<TAG_START_STATE>">"                     { yy_pop_state(); return TAG_CLOSE; }
+
+<*>[ \t\r]+                              { /* Ignore whitespaces */ }
+<*>\n                                    { lineNumber++; }
+<INITIAL,TAG_START_STATE>.               { return TEXT; }
 %%

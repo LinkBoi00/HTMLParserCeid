@@ -14,9 +14,11 @@
 %}
 
 %debug // TEMP: Enable debugging
+%destructor { if ($$) free($$); } <str>
 
 %union {
     int num;
+    char* str;
 }
 
 %token MYHTML_OPEN MYHTML_CLOSE
@@ -28,9 +30,9 @@
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 %token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
 
-%token QUOTE TAG_CLOSE
+%token<str> QUOTED_STRING
 %token<num> NUMBER
-%token TEXT 
+%token TEXT TAG_CLOSE
 
 /* Rules */
 %%
@@ -175,35 +177,35 @@ div_children:
 ;
 
 attr_name:
-    ATTR_NAME QUOTE text QUOTE
+    ATTR_NAME QUOTED_STRING
 ;
 
 attr_content:
-    ATTR_CONTENT QUOTE text QUOTE
+    ATTR_CONTENT QUOTED_STRING
 ;
 
 attr_charset:
-    ATTR_CHARSET QUOTE text QUOTE
+    ATTR_CHARSET QUOTED_STRING
 ;
 
 attr_id:
-    ATTR_ID QUOTE text QUOTE
+    ATTR_ID QUOTED_STRING
 ;
 
 attr_style:
-    ATTR_STYLE QUOTE text QUOTE
+    ATTR_STYLE QUOTED_STRING
 ;
 
 attr_href:
-    ATTR_HREF QUOTE text QUOTE
+    ATTR_HREF QUOTED_STRING
 ;
 
 attr_src:
-    ATTR_SRC QUOTE text QUOTE
+    ATTR_SRC QUOTED_STRING
 ;
 
 attr_alt:
-    ATTR_ALT QUOTE text QUOTE 
+    ATTR_ALT QUOTED_STRING 
 ;
 
 attr_height:
@@ -211,19 +213,19 @@ attr_height:
 ;
 
 attr_width:
-    ATTR_WIDTH NUMBER  { if($2 <= 0) yyerror("Width must a positive integer"); }
+    ATTR_WIDTH NUMBER { if($2 <= 0) yyerror("Width must a positive integer"); }
 ;
 
 attr_type:
-    ATTR_TYPE QUOTE text QUOTE
+    ATTR_TYPE QUOTED_STRING
 ;
 
 attr_for:
-    ATTR_FOR QUOTE text QUOTE
+    ATTR_FOR QUOTED_STRING
 ;
 
 attr_value:
-    ATTR_VALUE QUOTE text QUOTE
+    ATTR_VALUE QUOTED_STRING
 ;
 
 text:
