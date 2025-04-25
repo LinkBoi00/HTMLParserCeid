@@ -11,6 +11,8 @@
 
     extern int lineNumber;
     extern FILE *yyin;
+
+    bool parse_success = true;
 %}
 
 %code requires {
@@ -317,6 +319,11 @@ int main(int argc, char** argv) {
     // Call the bison parser
     yyparse();
 
+    // Show diagnostic message
+    if (parse_success) {
+        printf("myHTMLParser: Parsing completed successfully and the file is valid.\n");
+    }
+
     // Close the input file, if applicable
     if (inputFromFile)
         fclose(yyin);
@@ -345,6 +352,7 @@ void validateInputAttrs(Attributes attrs) {
 
 int yyerror(char* s) {
     printf("\nError: %s in line number %d \n", s, lineNumber);
+    parse_success = false;
 
     return 0;
 }
