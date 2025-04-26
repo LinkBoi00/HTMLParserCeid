@@ -12,33 +12,33 @@
 
 /* Rules */
 %%
-"<!--"                  { yy_push_state(COMMENT_STATE); }
-<COMMENT_STATE>"--"     { return ERROR; }
-<COMMENT_STATE>"-->"    { yy_pop_state(); }
-<COMMENT_STATE>.        { /*ignore the text in the comment*/ }
+"<!--"                                  { yy_push_state(COMMENT_STATE); }
+<COMMENT_STATE>"--"                     { return ERROR; }
+<COMMENT_STATE>"-->"                    { yy_pop_state(); }
+<COMMENT_STATE>.                        { /*ignore the text in the comment*/ }
 
-"<MYHTML>"              { return MYHTML_OPEN; }
-"</MYHTML>"             { return MYHTML_CLOSE; }
+"<MYHTML>"                              { return MYHTML_OPEN; }
+"</MYHTML>"                             { return MYHTML_CLOSE; }
 
-"<head>"                { return HEAD_OPEN; }
-"</head>"               { return HEAD_CLOSE; }
-"<title>"               { return TITLE_OPEN; }
-"</title>"              { return TITLE_CLOSE; }
-"<meta"                 { yy_push_state(TAG_START_STATE); return META_OPEN; }
-"<body>"                { return BODY_OPEN; }
-"</body>"               { return BODY_CLOSE; }
-"<p"                    { yy_push_state(TAG_START_STATE); return P_OPEN; }
-"</p>"                  { return P_CLOSE; }
-"<a"                    { yy_push_state(TAG_START_STATE); return A_OPEN; }
-"</a>"                  { return A_CLOSE; }
-"<img"                  { yy_push_state(TAG_START_STATE); return IMG_OPEN; }
-"<form"                 { yy_push_state(TAG_START_STATE); return FORM_OPEN; }
-"</form>"               { return FORM_CLOSE;}
-"<input"                { yy_push_state(TAG_START_STATE); return INPUT_OPEN; }
-"<label"                { yy_push_state(TAG_START_STATE); return LABEL_OPEN; }
-"</label>"              { return LABEL_CLOSE; }
-"<div"                  { yy_push_state(TAG_START_STATE); return DIV_OPEN; }
-"</div>"                { return DIV_CLOSE; }
+"<head>"                                { return HEAD_OPEN; }
+"</head>"                               { return HEAD_CLOSE; }
+"<title>"                               { return TITLE_OPEN; }
+"</title>"                              { return TITLE_CLOSE; }
+"<meta"                                 { yy_push_state(TAG_START_STATE); return META_OPEN; }
+"<body>"                                { return BODY_OPEN; }
+"</body>"                               { return BODY_CLOSE; }
+"<p"                                    { yy_push_state(TAG_START_STATE); return P_OPEN; }
+"</p>"                                  { return P_CLOSE; }
+"<a"                                    { yy_push_state(TAG_START_STATE); return A_OPEN; }
+"</a>"                                  { return A_CLOSE; }
+"<img"                                  { yy_push_state(TAG_START_STATE); return IMG_OPEN; }
+"<form"                                 { yy_push_state(TAG_START_STATE); return FORM_OPEN; }
+"</form>"                               { return FORM_CLOSE;}
+"<input"                                { yy_push_state(TAG_START_STATE); return INPUT_OPEN; }
+"<label"                                { yy_push_state(TAG_START_STATE); return LABEL_OPEN; }
+"</label>"                              { return LABEL_CLOSE; }
+"<div"                                  { yy_push_state(TAG_START_STATE); return DIV_OPEN; }
+"</div>"                                { return DIV_CLOSE; }
 
 <TAG_START_STATE>"name"                 { return ATTR_NAME; }
 <TAG_START_STATE>"content"              { return ATTR_CONTENT; }
