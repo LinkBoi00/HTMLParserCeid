@@ -40,7 +40,7 @@
 "<div"                                  { yy_push_state(TAG_START_STATE); return DIV_OPEN; }
 "</div>"                                { return DIV_CLOSE; }
 
-<INITIAL,TITLE_STATE>"</title>"         { yy_pop_state(); return TITLE_CLOSE; }
+<INITIAL,TITLE_STATE>"</title>"         { if (YY_START == TITLE_STATE) { yy_pop_state(); } return TITLE_CLOSE; }
 <TITLE_STATE>[^<]+                      { title_size += strlen(yytext); return TEXT; }
 <TITLE_STATE>"<"                        { title_size++; }
 
