@@ -1,5 +1,7 @@
 BUILD_DIR = build
+TESTS_DIR = tests
 OUTPUT_FILE = $(BUILD_DIR)/my_html_parser.out
+TEST_FILES = $(wildcard $(TESTS_DIR)/test-*.txt)
 CFLAGS = -lfl
 
 all: target
@@ -15,5 +17,13 @@ target:
 clean:
 	rm -rf $(BUILD_DIR)
 
-run:
-	./$(OUTPUT_FILE) test.txt
+run: clean target
+	@echo "\nRunning parser with example.txt"
+	./$(OUTPUT_FILE) example.txt
+
+test: run
+	@for test_file in $(TEST_FILES); do \
+		echo "----------------------------------"; \
+		echo "Running test: $$test_file"; \
+		./$(OUTPUT_FILE) $$test_file; \
+	done

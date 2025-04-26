@@ -1,0 +1,10 @@
+<MYHTML>
+<head>
+    <title> </title>
+</head>
+<body>
+    <form id="form1">
+       
+    </form>
+</body>
+</MYHTML>
