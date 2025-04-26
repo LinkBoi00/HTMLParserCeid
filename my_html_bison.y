@@ -8,7 +8,9 @@
 
     extern int yylex(void);
     extern int yyerror(char* s);
+    
     extern int lineNumber;
+    extern int title_size;
     extern FILE *yyin;
 
     bool parse_success = true;
@@ -68,7 +70,9 @@ head:
 ;
 
 head_title_section:
-    TITLE_OPEN text TITLE_CLOSE
+    TITLE_OPEN text TITLE_CLOSE {
+        if (title_size > 60) yyerror("Title size is larger than 60 characters");
+    }
 ;
 
 head_meta_section:

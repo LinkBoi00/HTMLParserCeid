@@ -4,15 +4,16 @@
     #include <string.h>
 
     int lineNumber = 1;
+    int title_size = 0;
 %}
 
 %option stack
 
-%x TAG_START_STATE COMMENT_STATE
+%x TAG_START_STATE COMMENT_STATE TITLE_STATE
 
 /* Rules */
 %%
-"<!--"                                  { yy_push_state(COMMENT_STATE); }
+<INITIAL,TITLE_STATE>"<!--"             { yy_push_state(COMMENT_STATE); }
 <COMMENT_STATE>"--"                     { return ERROR; }
 <COMMENT_STATE>"-->"                    { yy_pop_state(); }
 <COMMENT_STATE>.                        { /*ignore the text in the comment*/ }
@@ -22,8 +23,7 @@
 
 "<head>"                                { return HEAD_OPEN; }
 "</head>"                               { return HEAD_CLOSE; }
-"<title>"                               { return TITLE_OPEN; }
-"</title>"                              { return TITLE_CLOSE; }
+"<title>"                               { yy_push_state(TITLE_STATE); return TITLE_OPEN; }
 "<meta"                                 { yy_push_state(TAG_START_STATE); return META_OPEN; }
 "<body>"                                { return BODY_OPEN; }
 "</body>"                               { return BODY_CLOSE; }
@@ -39,6 +39,10 @@
 "</label>"                              { return LABEL_CLOSE; }
 "<div"                                  { yy_push_state(TAG_START_STATE); return DIV_OPEN; }
 "</div>"                                { return DIV_CLOSE; }
+
+<INITIAL,TITLE_STATE>"</title>"         { yy_pop_state(); return TITLE_CLOSE; }
+<TITLE_STATE>[^<]+                      { title_size += strlen(yytext); return TEXT; }
+<TITLE_STATE>"<"                        { title_size++; }
 
 <TAG_START_STATE>"name"                 { return ATTR_NAME; }
 <TAG_START_STATE>"content"              { return ATTR_CONTENT; }
