@@ -46,9 +46,9 @@
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 %token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
 
-%token QUOTED_STRING
+%token QUOTED_STRING EQUALS TAG_CLOSE
 %token<num> NUMBER
-%token TEXT TAG_CLOSE ERROR
+%token TEXT ERROR
 
 %type<attrs> img_attributes input_attributes
 
@@ -232,55 +232,55 @@ div_children:
 ;
 
 attr_name:
-    ATTR_NAME QUOTED_STRING
+    ATTR_NAME EQUALS QUOTED_STRING
 ;
 
 attr_content:
-    ATTR_CONTENT QUOTED_STRING
+    ATTR_CONTENT EQUALS QUOTED_STRING
 ;
 
 attr_charset:
-    ATTR_CHARSET QUOTED_STRING
+    ATTR_CHARSET EQUALS QUOTED_STRING
 ;
 
 attr_id:
-    ATTR_ID QUOTED_STRING
+    ATTR_ID EQUALS QUOTED_STRING
 ;
 
 attr_style:
-    ATTR_STYLE QUOTED_STRING
+    ATTR_STYLE EQUALS QUOTED_STRING
 ;
 
 attr_href:
-    ATTR_HREF QUOTED_STRING
+    ATTR_HREF EQUALS QUOTED_STRING
 ;
 
 attr_src:
-    ATTR_SRC QUOTED_STRING
+    ATTR_SRC EQUALS QUOTED_STRING
 ;
 
 attr_alt:
-    ATTR_ALT QUOTED_STRING 
+    ATTR_ALT EQUALS QUOTED_STRING
 ;
 
 attr_height:
-    ATTR_HEIGHT NUMBER { if($2 <= 0) yyerror("Height must a positive integer"); }
+    ATTR_HEIGHT EQUALS NUMBER { if($3 <= 0) yyerror("Height must a positive integer"); }
 ;
 
 attr_width:
-    ATTR_WIDTH NUMBER { if($2 <= 0) yyerror("Width must a positive integer"); }
+    ATTR_WIDTH EQUALS NUMBER { if($3 <= 0) yyerror("Width must a positive integer"); }
 ;
 
 attr_type:
-    ATTR_TYPE QUOTED_STRING
+    ATTR_TYPE EQUALS QUOTED_STRING
 ;
 
 attr_for:
-    ATTR_FOR QUOTED_STRING
+    ATTR_FOR EQUALS QUOTED_STRING
 ;
 
 attr_value:
-    ATTR_VALUE QUOTED_STRING
+    ATTR_VALUE EQUALS QUOTED_STRING
 ;
 
 text:
