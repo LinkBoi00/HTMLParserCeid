@@ -3,6 +3,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
+    #include "linked_list.h"
 
     #define YYDEBUG 1
 
@@ -14,6 +15,7 @@
     extern FILE *yyin;
 
     bool parse_success = true;
+    Linked_list* id_list;
 %}
 
 %code requires {
@@ -37,6 +39,7 @@
 %union {
     Attributes attrs;
     int num;
+    char* str;
 }
 
 %token MYHTML_OPEN MYHTML_CLOSE
@@ -48,12 +51,14 @@
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 %token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
 
-%token QUOTED_STRING EQUALS TAG_CLOSE
+%token EQUALS TAG_CLOSE
 %token<num> NUMBER
+%token<str> QUOTED_STRING
 %token TEXT ERROR
 
 %type<attrs> img_attributes input_attributes
 
+%destructor { free($$); } <str> //destructor to automatically free memory of strings
 /* Rules */
 %%
 input:
@@ -236,35 +241,51 @@ div_children:
 ;
 
 attr_name:
-    ATTR_NAME EQUALS QUOTED_STRING
+    ATTR_NAME EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_content:
-    ATTR_CONTENT EQUALS QUOTED_STRING
+    ATTR_CONTENT EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_charset:
-    ATTR_CHARSET EQUALS QUOTED_STRING
+    ATTR_CHARSET EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_id:
-    ATTR_ID EQUALS QUOTED_STRING
+    ATTR_ID EQUALS QUOTED_STRING{
+        (!find_match(id_list,$3))? emplace_back(id_list,$3) : yyerror("Duplicate id");
+    }
 ;
 
 attr_style:
-    ATTR_STYLE EQUALS QUOTED_STRING
+    ATTR_STYLE EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_href:
-    ATTR_HREF EQUALS QUOTED_STRING
+    ATTR_HREF EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_src:
-    ATTR_SRC EQUALS QUOTED_STRING
+    ATTR_SRC EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_alt:
-    ATTR_ALT EQUALS QUOTED_STRING
+    ATTR_ALT EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_height:
@@ -276,15 +297,21 @@ attr_width:
 ;
 
 attr_type:
-    ATTR_TYPE EQUALS QUOTED_STRING
+    ATTR_TYPE EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_for:
-    ATTR_FOR EQUALS QUOTED_STRING
+    ATTR_FOR EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 attr_value:
-    ATTR_VALUE EQUALS QUOTED_STRING
+    ATTR_VALUE EQUALS QUOTED_STRING{
+        (void)$3;
+    }
 ;
 
 text:
@@ -297,6 +324,7 @@ text:
 int main(int argc, char** argv) {
     bool inputFromFile = false;
 
+    id_list = newList(); //the linked list we store the ids in
     yydebug = 0; // TEMP: Enable debugging
 
     // Determine if we will be using a file or stdin as input
@@ -320,13 +348,15 @@ int main(int argc, char** argv) {
 
     // Show diagnostic message
     if (parse_success) {
-        printf("myHTMLParser: Parsing completed successfully and the file is valid.\n");
+        printf("\nmyHTMLParser: Parsing completed successfully and the file is valid.\n");
     }
 
     // Close the input file, if applicable
     if (inputFromFile)
         fclose(yyin);
 
+    //print_list(id_list);//just to check all the ids to make sure its correct
+    delete_list(id_list);
     return 0;
 }
 
@@ -353,5 +383,5 @@ int yyerror(char* s) {
     printf("\nError: %s in line number %d \n", s, lineNumber);
     parse_success = false;
 
-    return 0;
+    exit(1);
 }
