@@ -3,6 +3,7 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
+    #include <string.h>
 
     #define YYDEBUG 1
 
@@ -14,6 +15,10 @@
     extern FILE *yyin;
 
     bool parse_success = true;
+
+    // Input tag type attribute
+    int submit_input_count = 0;
+    bool is_input_submit_last = false;
 %}
 
 %code requires {
@@ -170,7 +175,15 @@ img_attributes:
 ;
 
 form_tag:
-    FORM_OPEN form_attributes TAG_CLOSE form_children FORM_CLOSE
+    FORM_OPEN form_attributes TAG_CLOSE form_children FORM_CLOSE {
+        if (submit_input_count > 1) {
+            yyerror("Only one submit input tag is allowed per form");
+        }
+        if (submit_input_count == 1 && is_input_submit_last == false) {
+            yyerror("Submit input tag must be the last input tag in a form");
+        }
+        submit_input_count = 0;
+    }
 ;
 
 form_attributes:
@@ -301,6 +314,18 @@ attr_width:
 
 attr_type:
     ATTR_TYPE EQUALS QUOTED_STRING {
+        if (strcmp($3, "text") != 0 && strcmp($3, "checkbox") != 0 &&
+            strcmp($3, "radio") != 0 && strcmp($3, "submit") != 0) {
+            yyerror("Invalid input type value. Allowed: text, checkbox, radio, submit");
+        }
+
+        if (strcmp($3, "submit") == 0) {
+            submit_input_count++;
+            is_input_submit_last = true;
+        } else {
+            is_input_submit_last = false;
+        }
+
         free($3);
     }
 ;
