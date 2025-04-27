@@ -17,25 +17,31 @@
 %}
 
 %code requires {
-    struct Attributes {
+    struct ImgAttributes {
         int has_id;
         int has_src;
         int has_alt;
         int has_type;
         int has_width;
         int has_height;
+    } typedef ImgAttributes;
+
+    struct InputAttributes {
+        int has_id;
+        int has_type;
         int has_style;
         int has_value;
-    } typedef Attributes;
+    } typedef InputAttributes;
 
-    void validateImgAttrs(Attributes attrs);
-    void validateInputAttrs(Attributes attrs);
+    void validateImgAttrs(ImgAttributes attrs);
+    void validateInputAttrs(InputAttributes attrs);
 }
 
 %debug // TEMP: Enable debugging
 
 %union {
-    Attributes attrs;
+    ImgAttributes imgAttrs;
+    InputAttributes inputAttrs;
     int num;
     char* str;
 }
@@ -53,7 +59,8 @@
 %token<num> NUMBER
 %token TEXT ERROR EQUALS TAG_CLOSE
 
-%type<attrs> img_attributes input_attributes
+%type<imgAttrs> img_attributes
+%type<inputAttrs> input_attributes
 
 /* Rules */
 %%
@@ -138,7 +145,7 @@ img_tag:
 
 img_attributes:
     {
-        $$ = (Attributes){0, 0, 0, 0, 0, 0, 0, 0};
+        $$ = (ImgAttributes){0, 0, 0, 0, 0, 0};
     }
    | img_attributes attr_src {
         $$ = $1;
@@ -186,7 +193,7 @@ input_tag:
 
 input_attributes:
     {
-        $$ = (Attributes){0, 0, 0, 0, 0, 0, 0, 0};
+        $$ = (InputAttributes){0, 0, 0, 0};
     }
     | input_attributes attr_type {
         $$ = $1;
@@ -353,7 +360,7 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-void validateImgAttrs(Attributes attrs) {
+void validateImgAttrs(ImgAttributes attrs) {
     if (attrs.has_id != 1 || attrs.has_src != 1 || attrs.has_alt != 1) {
         yyerror("img tag requires exactly one each of: id, src, alt");
     }
@@ -362,7 +369,7 @@ void validateImgAttrs(Attributes attrs) {
     }
 }
 
-void validateInputAttrs(Attributes attrs) {
+void validateInputAttrs(InputAttributes attrs) {
     if (attrs.has_id != 1 || attrs.has_type != 1) {
         yyerror("input tag requires exactly one each of: id, type");
     }
