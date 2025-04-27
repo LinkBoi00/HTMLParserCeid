@@ -18,7 +18,11 @@
 
     // Input tag type attribute
     int submit_input_count = 0;
+    int checkbox_input_count = 0;
     bool is_input_submit_last = false;
+
+    // Form tag checkbox-count attribute
+    int checkbox_count_value = -1;
 %}
 
 %code requires {
@@ -59,6 +63,7 @@
 
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 %token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
+%token ATTR_CHECKBOXES
 
 %token<str> QUOTED_STRING
 %token<num> NUMBER
@@ -182,13 +187,33 @@ form_tag:
         if (submit_input_count == 1 && is_input_submit_last == false) {
             yyerror("Submit input tag must be the last input tag in a form");
         }
+
+        if (checkbox_count_value > 0) {
+            if (checkbox_count_value != checkbox_input_count) {
+                if (checkbox_input_count == 0) {
+                    yyerror("checkbox-count attribute used, but no checkbox input tag found");
+                } else {    
+                printf("Expected %d checkbox input tags, got %d", checkbox_count_value, checkbox_input_count);
+                yyerror("Checkbox input tags amount mismatch");
+                }
+            }
+        }
+
         submit_input_count = 0;
+        checkbox_input_count = 0;
+        checkbox_count_value = -1;
     }
 ;
 
 form_attributes:
     attr_id
     | attr_id attr_style
+    | attr_style attr_id
+    | attr_id attr_checkboxes
+    | attr_id attr_checkboxes attr_style
+    | attr_id attr_style attr_checkboxes
+    | attr_style attr_checkboxes attr_id
+    | attr_style attr_id attr_checkboxes
 ;
 
 form_children:
@@ -326,6 +351,10 @@ attr_type:
             is_input_submit_last = false;
         }
 
+        if (strcmp($3, "checkbox") == 0) {
+            checkbox_input_count++;
+        }
+
         free($3);
     }
 ;
@@ -339,6 +368,15 @@ attr_for:
 attr_value:
     ATTR_VALUE EQUALS QUOTED_STRING {
         free($3);
+    }
+;
+
+attr_checkboxes:
+    ATTR_CHECKBOXES EQUALS NUMBER {
+        if($3 <= 0) {
+            yyerror("checkboxes-count must be a positive integer");
+        }
+        checkbox_count_value = $3;
     }
 ;
 

@@ -11,24 +11,7 @@
         Here comes an image.
     </a>
     
-    <!--
-    A wild
-    comment appeared.
-    -->
-    
-    <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
-
-    <div id="div1" style="color:blue">
-        <!-- comment -->
-        <a id="hyper" href= "https://arxes.ceid.gr">
-            Here comes an image. <!-- gamw thn athina -->
-            <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
-        </a>
-    </div>
-    
-    <!-- gamw thn kalamata -->
-    
-    <form id="form1" checkbox-count=1>
+    <form id="form1" checkbox-count=9>
         <label for ="name" id="label1">Name:</label>
         <input type="text" id="name">
         <label id="label2" for="lastname">last Name:</label>

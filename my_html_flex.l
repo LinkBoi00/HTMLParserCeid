@@ -57,6 +57,7 @@
 <TAG_START_STATE>"for"                  { return ATTR_FOR; }
 <TAG_START_STATE>"type"                 { return ATTR_TYPE; }
 <TAG_START_STATE>"value"                { return ATTR_VALUE; }
+<TAG_START_STATE>"checkbox-count"       { return ATTR_CHECKBOXES; }
 
 <TAG_START_STATE>"="                    { return EQUALS; }
 <TAG_START_STATE>\"[^"]*\"   {
