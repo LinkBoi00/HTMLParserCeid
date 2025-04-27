@@ -1,8 +1,9 @@
 BUILD_DIR = build
+LIBS_DIR = libs
 TESTS_DIR = tests
 OUTPUT_FILE = $(BUILD_DIR)/my_html_parser.out
 TEST_FILES = $(wildcard $(TESTS_DIR)/test-*.txt)
-CFLAGS = -lfl
+CFLAGS =-I$(LIBS_DIR)/include -lfl
 
 all: target
 
@@ -12,6 +13,7 @@ target:
 	bison -d -t -o $(BUILD_DIR)/my_html_bison.tab.c my_html_bison.y
 	gcc $(CFLAGS) $(BUILD_DIR)/lex.yy.c \
 		$(BUILD_DIR)/my_html_bison.tab.c \
+		$(LIBS_DIR)/linked_list.c \
 		-o $(OUTPUT_FILE)
 
 clean:

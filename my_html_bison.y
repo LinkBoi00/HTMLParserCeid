@@ -4,6 +4,7 @@
     #include <stdlib.h>
     #include <stdbool.h>
     #include <string.h>
+    #include "linked_list.h"
 
     #define YYDEBUG 1
 
@@ -24,6 +25,9 @@
 
     // Form tag checkbox-count attribute
     int checkbox_count_value = -1;
+
+    // Linked list for IDs
+    Linked_list* id_list;
 %}
 
 %code requires {
@@ -302,6 +306,7 @@ attr_charset:
 
 attr_id:
     ATTR_ID EQUALS QUOTED_STRING {
+        (!find_match(id_list, $3)) ? emplace_back(id_list, $3) : yyerror("Duplicate id");
         free($3);
     }
 ;
@@ -391,6 +396,7 @@ text:
 int main(int argc, char** argv) {
     bool inputFromFile = false;
 
+    id_list = newList();
     yydebug = 0; // TEMP: Enable debugging
 
     // Determine if we will be using a file or stdin as input
@@ -414,15 +420,17 @@ int main(int argc, char** argv) {
 
     // Show diagnostic message
     if (parse_success) {
-        printf("myHTMLParser: Parsing completed successfully and the file is valid.\n");
+        printf("\nmyHTMLParser: Parsing completed successfully and the file is valid.\n");
     }
 
     // Close the input file, if applicable
     if (inputFromFile)
         fclose(yyin);
 
-    // Free flex internal buffers
+    // De-allocate memory
     yylex_destroy();
+    delete_list(id_list);
+
     return 0;
 }
 
@@ -449,5 +457,5 @@ int yyerror(char* s) {
     printf("\nError: %s in line number %d \n", s, lineNumber);
     parse_success = false;
 
-    return 0;
+    exit(1);
 }
