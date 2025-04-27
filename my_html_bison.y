@@ -37,6 +37,7 @@
 %union {
     Attributes attrs;
     int num;
+    char* str;
 }
 
 %token MYHTML_OPEN MYHTML_CLOSE
@@ -48,9 +49,9 @@
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 %token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
 
-%token QUOTED_STRING EQUALS TAG_CLOSE
+%token<str> QUOTED_STRING
 %token<num> NUMBER
-%token TEXT ERROR
+%token TEXT ERROR EQUALS TAG_CLOSE
 
 %type<attrs> img_attributes input_attributes
 
@@ -236,35 +237,51 @@ div_children:
 ;
 
 attr_name:
-    ATTR_NAME EQUALS QUOTED_STRING
+    ATTR_NAME EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_content:
-    ATTR_CONTENT EQUALS QUOTED_STRING
+    ATTR_CONTENT EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_charset:
-    ATTR_CHARSET EQUALS QUOTED_STRING
+    ATTR_CHARSET EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_id:
-    ATTR_ID EQUALS QUOTED_STRING
+    ATTR_ID EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_style:
-    ATTR_STYLE EQUALS QUOTED_STRING
+    ATTR_STYLE EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_href:
-    ATTR_HREF EQUALS QUOTED_STRING
+    ATTR_HREF EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_src:
-    ATTR_SRC EQUALS QUOTED_STRING
+    ATTR_SRC EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_alt:
-    ATTR_ALT EQUALS QUOTED_STRING
+    ATTR_ALT EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_height:
@@ -276,15 +293,21 @@ attr_width:
 ;
 
 attr_type:
-    ATTR_TYPE EQUALS QUOTED_STRING
+    ATTR_TYPE EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_for:
-    ATTR_FOR EQUALS QUOTED_STRING
+    ATTR_FOR EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 attr_value:
-    ATTR_VALUE EQUALS QUOTED_STRING
+    ATTR_VALUE EQUALS QUOTED_STRING {
+        free($3);
+    }
 ;
 
 text:
