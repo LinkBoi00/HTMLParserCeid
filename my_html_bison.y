@@ -47,8 +47,16 @@
         int has_value;
     } typedef InputAttributes;
 
+    struct StyleCharacteristics {
+        int has_backround;
+        int has_color;
+        int has_font_size;
+        int has_font_family;
+    } typedef StyleCharacteristics;
+    
     void validateImgAttrs(ImgAttributes attrs);
     void validateInputAttrs(InputAttributes attrs);
+    void validateStyle(StyleCharacteristics styleChars);
 }
 
 %debug // TEMP: Enable debugging
@@ -56,6 +64,7 @@
 %union {
     ImgAttributes imgAttrs;
     InputAttributes inputAttrs;
+    StyleCharacteristics styleChars;
     int num;
     char* str;
 }
@@ -76,6 +85,9 @@
 
 %type<imgAttrs> img_attributes
 %type<inputAttrs> input_attributes
+
+%type<styleChars> style_characteristics
+%token BACKROUND_COLOR COLOR FONT_FAMILY FONT_SIZE SEMICOLON COLON QUOTE
 
 /* Rules */
 %%
@@ -312,8 +324,29 @@ attr_id:
 ;
 
 attr_style:
-    ATTR_STYLE EQUALS QUOTED_STRING {
-        free($3);
+    ATTR_STYLE EQUALS QUOTE style_characteristics QUOTE{
+        validateStyle($4);
+    }
+;
+
+style_characteristics:
+    { $$=(StyleCharacteristics) {0,0,0,0}; }
+    |style_characteristics BACKROUND_COLOR COLON text SEMICOLON{
+        $$=$1;
+        $$.has_backround++;
+    }
+    |style_characteristics COLOR COLON text SEMICOLON{
+        $$=$1;
+        $$.has_color++;
+    }
+    |style_characteristics FONT_FAMILY COLON text SEMICOLON{
+        $$=$1;
+        $$.has_font_family++;
+    }
+    |style_characteristics FONT_SIZE COLON NUMBER SEMICOLON{
+        if ($4 <= 0) yyerror("Font size must be a possitive integer");
+        $$=$1;
+        $$.has_font_size++;
     }
 ;
 
@@ -450,6 +483,12 @@ void validateInputAttrs(InputAttributes attrs) {
 
     if (attrs.has_value > 1 || attrs.has_style > 1) {
         yyerror("input tag allows at most one each of optional: value, style");
+    }
+}
+
+void validateStyle(StyleCharacteristics styleChars){
+    if (styleChars.has_backround>1 || styleChars.has_color>1 || styleChars.has_font_family>1 || styleChars.has_font_size>1){
+        yyerror("style attribute allows at most one each of optional: backround_color, color, font_family, font_size");
     }
 }
 

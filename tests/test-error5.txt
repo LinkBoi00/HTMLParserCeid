@@ -6,24 +6,9 @@
     <meta name="author" content="Input your name here">
 </head>
 <body>
-    <p id="par1" style="">This is my project.</p>
-    
-    <img src="image.jpg" id="myimg123" alt="Example Image" height =9 width= 10 >
-    
-    <div id="div1" style="color:blue"> 
-        <a id="hyper" href="https://arxes.ceid.gr">
-            
-        </a>
-    </div>
-    
-    <form id="form1">
-        <label for="name" id="label1">Name:</label>
-        <input type="text" id="name">
-        <label id="label2" for="lastname">last Name:</label>
-        <input type="text" id="lastname">
-        <input type="text" id="lastname">
-        <input id="submit" type="submit" value='Submit it'>
-        <input id="submit" type="submit" value='Submit it'>
-    </form>
+    <p id = "par1" style="backround_color:red; color:black; font_family:italic; font_size:9px; color:yellow; ">This is my project.</p>
+    <a id="hyper1" href="https://arxes.ceid.gr">
+        Here comes an image.
+    </a>
 </body>
 </MYHTML>

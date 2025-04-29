@@ -6,7 +6,7 @@
     <meta name="author" content="Input your name here">
 </head>
 <body>
-    <p id="id1" style="color:blue">This is my project.</p>
+    <p id="id1" style="color:blue;">This is my project.</p>
 
     <img id="kalamata" src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
     
