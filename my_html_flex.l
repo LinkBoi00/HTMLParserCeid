@@ -9,7 +9,7 @@
 
 %option stack
 
-%x TAG_START_STATE COMMENT_STATE TITLE_STATE
+%x TAG_START_STATE COMMENT_STATE TITLE_STATE STYLE_QUOTE STYLE_STATE
 
 /* Rules */
 %%
@@ -48,7 +48,7 @@
 <TAG_START_STATE>"content"              { return ATTR_CONTENT; }
 <TAG_START_STATE>"charset"              { return ATTR_CHARSET; }
 <TAG_START_STATE>"id"                   { return ATTR_ID; }
-<TAG_START_STATE>"style"                { return ATTR_STYLE; }
+<TAG_START_STATE>"style"                { yy_push_state(STYLE_QUOTE); return ATTR_STYLE; }
 <TAG_START_STATE>"href"                 { return ATTR_HREF; }
 <TAG_START_STATE>"src"                  { return ATTR_SRC; }
 <TAG_START_STATE>"alt"                  { return ATTR_ALT; }
@@ -58,7 +58,7 @@
 <TAG_START_STATE>"type"                 { return ATTR_TYPE; }
 <TAG_START_STATE>"value"                { return ATTR_VALUE; }
 
-<TAG_START_STATE>"="                    { return EQUALS; }
+<TAG_START_STATE,STYLE_STATE,STYLE_QUOTE>"="        { return EQUALS; }
 <TAG_START_STATE>\'[^']*\'              { return QUOTED_STRING; }
 <TAG_START_STATE>\"[^"]*\" { 
     yylval.str=strdup(yytext);
@@ -68,7 +68,18 @@
 <TAG_START_STATE>-?[0-9]+               { yylval.num = atoi(yytext); return NUMBER; }
 <TAG_START_STATE>">"                    { yy_pop_state(); return TAG_CLOSE; }
 
+<STYLE_QUOTE>\"                          { yy_push_state(STYLE_STATE); return QUOTE;}
+<STYLE_STATE>"backround_color"          { return BACKROUND_COLOR; }
+<STYLE_STATE>"color"                    { return COLOR; }
+<STYLE_STATE>"font_family"              { return FONT_FAMILY; }
+<STYLE_STATE>"font_size"                { return FONT_SIZE; }
+<STYLE_STATE>":"                        { return COLON; }
+<STYLE_STATE>";"                        { return SEMICOLON; }
+<STYLE_STATE>\"                         { yy_pop_state(); yy_pop_state(); return QUOTE; }
+<STYLE_STATE>-?[0-9]+"%"                { yylval.num = atoi(yytext); return NUMBER; }
+<STYLE_STATE>-?[0-9]+"px"               { yylval.num = atoi(yytext); return NUMBER; }
+
 <*>[ \t\r]+                             { /* Ignore whitespaces */ }
 <*>\n                                   { lineNumber++; }
-<INITIAL,TAG_START_STATE>.              { return TEXT; }
+<INITIAL,TAG_START_STATE,STYLE_STATE>.  { return TEXT; }
 %%

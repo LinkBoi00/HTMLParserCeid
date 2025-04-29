@@ -6,10 +6,9 @@
     <meta name="author" content="Input your name here">
 </head>
 <body>
-    <p id="id1" style="color:blue;">This is my project.</p>
-
-    <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
-    
-   <--this comment is -- wrong--> 
+    <p id = "par1" style="backround_color:red; color:black; font_family:italic; font_size:9px; color:yellow; ">This is my project.</p>
+    <a id="hyper1" href="https://arxes.ceid.gr">
+        Here comes an image.
+    </a>
 </body>
 </MYHTML>

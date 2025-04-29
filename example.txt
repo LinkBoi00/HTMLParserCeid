@@ -6,7 +6,7 @@
     <meta name="author" content="Input your name here">
 </head>
 <body>
-    <p id = "par1" style="color:blue">This is my project.</p>
+    <p id = "par1" style="backround_color:red_door; color:black; font_family:fast_and_furious; font_size:9px;">This is my project.</p>
     <a id="hyper1" href="https://arxes.ceid.gr">
         Here comes an image.
     </a>
@@ -18,7 +18,7 @@
     
     <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
 
-    <div id="div1" style="color:blue">
+    <div id="div1" style="color:white; font_size:69%; ">
         <!-- comment -->
         <a id="hyper2" href= "https://arxes.ceid.gr">
             Here comes an image.

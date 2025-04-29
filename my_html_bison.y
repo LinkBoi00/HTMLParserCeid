@@ -30,14 +30,24 @@
         int has_value;
     } typedef Attributes;
 
+    struct Style {
+        int has_backround;
+        int has_color;
+        int has_font_size;
+        int has_font_family;
+    }typedef Style;
+
     void validateImgAttrs(Attributes attrs);
     void validateInputAttrs(Attributes attrs);
+
+    void validateStyle(Style style);
 }
 
 %debug // TEMP: Enable debugging
 
 %union {
     Attributes attrs;
+    Style style;
     int num;
     char* str;
 }
@@ -56,8 +66,10 @@
 %token<str> QUOTED_STRING
 %token TEXT ERROR
 
-%type<attrs> img_attributes input_attributes
+%token BACKROUND_COLOR COLOR FONT_FAMILY FONT_SIZE SEMICOLON COLON QUOTE
 
+%type<attrs> img_attributes input_attributes
+%type<style> style_characteristics
 %destructor { free($$); } <str> //destructor to automatically free memory of strings
 /* Rules */
 %%
@@ -265,8 +277,29 @@ attr_id:
 ;
 
 attr_style:
-    ATTR_STYLE EQUALS QUOTED_STRING{
-        (void)$3;
+    ATTR_STYLE EQUALS QUOTE style_characteristics QUOTE{
+        validateStyle($4);
+    }
+;
+
+style_characteristics:
+    { $$=(Style) {0,0,0,0}; }
+    |style_characteristics BACKROUND_COLOR COLON text SEMICOLON{
+        $$=$1;
+        $$.has_backround++;
+    }
+    |style_characteristics COLOR COLON text SEMICOLON{
+        $$=$1;
+        $$.has_color++;
+    }
+    |style_characteristics FONT_FAMILY COLON text SEMICOLON{
+        $$=$1;
+        $$.has_font_family++;
+    }
+    |style_characteristics FONT_SIZE COLON NUMBER SEMICOLON{
+        if ($4 <= 0) yyerror("font size must be a possitive integer");
+        $$=$1;
+        $$.has_font_size++;
     }
 ;
 
@@ -376,6 +409,12 @@ void validateInputAttrs(Attributes attrs) {
 
     if (attrs.has_value > 1 || attrs.has_style > 1) {
         yyerror("input tag allows at most one each of optional: value, style");
+    }
+}
+
+void validateStyle(Style style){
+    if (style.has_backround>1 || style.has_color>1 || style.has_font_family>1 || style.has_font_size>1){
+        yyerror("style attribute allows at most one each of optional: backround_color, color, font_family, font_size");
     }
 }
 
