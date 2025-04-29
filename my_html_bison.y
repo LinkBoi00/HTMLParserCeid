@@ -381,7 +381,12 @@ int main(int argc, char** argv) {
 
     // Show diagnostic message
     if (parse_success) {
-        printf("\nmyHTMLParser: Parsing completed successfully and the file is valid.\n");
+        printf("\nmyHTMLParser: Parsing completed successfully and the file is valid,proceeding to now print the myHTML file...\n");
+        fseek(yyin,0,SEEK_SET);
+        char c;
+        while( (c = fgetc(yyin)) != EOF ){
+            putchar(c);
+        }
     }
 
     // Close the input file, if applicable
