@@ -28,6 +28,7 @@
 
     // Linked list for IDs
     Linked_list* id_list;
+    Address_list* input_addresses;
 %}
 
 %code requires {
@@ -253,10 +254,16 @@ input_attributes:
     | input_attributes attr_type {
         $$ = $1;
         $$.has_type++;
-   }
-    | input_attributes attr_id {
+    }
+    // Since this is a special case we do it this way so we can compare it
+    | input_attributes ATTR_ID EQUALS QUOTED_STRING {
         $$ = $1;
         $$.has_id++;
+        (!find_match(id_list,$4))? emplace_back(id_list,$4) : yyerror("Duplicate id");
+
+        Node* temp=id_list->tail;
+        insert_address(input_addresses,temp);
+        free($4);
    }
     | input_attributes attr_style {
         $$ = $1;
@@ -398,8 +405,18 @@ attr_type:
     }
 ;
 
+
 attr_for:
     ATTR_FOR EQUALS QUOTED_STRING {
+        // Get the address that links our for attribute with the id of an input
+        pNode* temp=check_address(input_addresses,$3);
+
+        // If its null it means that for either has  a duplicate input id value or none
+        if (temp == NULL )
+            yyerror("for attribute must be linked uniquely with an input tag's id");
+        else
+            delete_address_node(input_addresses,temp);
+
         free($3);
     }
 ;
@@ -430,6 +447,7 @@ int main(int argc, char** argv) {
     bool inputFromFile = false;
 
     id_list = newList();
+    input_addresses = newAddressList();
     yydebug = 0; // TEMP: Enable debugging
 
     // Determine if we will be using a file or stdin as input
@@ -463,6 +481,7 @@ int main(int argc, char** argv) {
     // De-allocate memory
     yylex_destroy();
     delete_list(id_list);
+    delete_address_list(input_addresses);
 
     return 0;
 }

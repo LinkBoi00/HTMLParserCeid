@@ -28,12 +28,12 @@
     
     <!-- gamw thn kalamata -->
     
-    <form id="form1" checkbox-count=1>
-        <label for ="name" id="label1">Name:</label>
+    <form id="form1">
+        <input type="text" id="label1">
+        <label for="label1" id="lol">Name:</label>
         <input type="text" id="name">
-        <label id="label2" for="lastname">last Name:</label>
-        <input type="text" id="lastname">
-        <input id="check1" type="checkbox" value="Allow cookies">
+        <label id="label2" for="name">last Name:</label>
+        <input type="text" id="label3">
         <input id="submit" type="submit" value='Submit "it" '>
     </form>
 </body>

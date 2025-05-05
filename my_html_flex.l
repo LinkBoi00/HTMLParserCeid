@@ -59,7 +59,6 @@
 <TAG_START_STATE>"value"                { return ATTR_VALUE; }
 <TAG_START_STATE>"checkbox-count"       { return ATTR_CHECKBOXES; }
 
-
 <TAG_START_STATE,STYLE_STATE,STYLE_QUOTE>"="  { return EQUALS; }
 <TAG_START_STATE>\"[^"]*\"   {
     yylval.str = strndup(yytext + 1, yyleng - 2);
