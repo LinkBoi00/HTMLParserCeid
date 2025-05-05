@@ -59,7 +59,7 @@
 <TAG_START_STATE>"value"                { return ATTR_VALUE; }
 
 <TAG_START_STATE,STYLE_STATE,STYLE_QUOTE>"="        { return EQUALS; }
-<TAG_START_STATE>\'[^']*\'              { return QUOTED_STRING; }
+<TAG_START_STATE>\'[^']*\'                          { yylval.str=strdup(yytext); return QUOTED_STRING; }
 <TAG_START_STATE>\"[^"]*\" { 
     yylval.str=strdup(yytext);
     return QUOTED_STRING; 

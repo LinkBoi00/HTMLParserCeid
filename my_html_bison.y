@@ -12,10 +12,13 @@
     
     extern int lineNumber;
     extern int title_size;
+    //int yylex_destroy(void);
+    extern void yylex_destroy();
     extern FILE *yyin;
 
     bool parse_success = true;
     Linked_list* id_list;
+    Adress_list* input_adresses;
 %}
 
 %code requires {
@@ -70,7 +73,8 @@
 
 %type<attrs> img_attributes input_attributes
 %type<style> style_characteristics
-%destructor { free($$); } <str> //destructor to automatically free memory of strings
+
+//%destructor { free($$); } <str> //destructor to automatically free memory of strings
 /* Rules */
 %%
 input:
@@ -208,9 +212,14 @@ input_attributes:
         $$ = $1;
         $$.has_type++;
    }
-    | input_attributes attr_id {
+    | input_attributes ATTR_ID EQUALS QUOTED_STRING { //since this is a special case we do it this way so we can compare it 
         $$ = $1;
         $$.has_id++;
+        (!find_match(id_list,$4))? emplace_back(id_list,$4) : yyerror("Duplicate id");
+
+        Node* temp=id_list->tail;
+        insert_adress(input_adresses,temp);
+        
    }
     | input_attributes attr_style {
         $$ = $1;
@@ -254,19 +263,19 @@ div_children:
 
 attr_name:
     ATTR_NAME EQUALS QUOTED_STRING{
-        (void)$3;
+        free($3);
     }
 ;
 
 attr_content:
     ATTR_CONTENT EQUALS QUOTED_STRING{
-        (void)$3;
+        free($3);
     }
 ;
 
 attr_charset:
     ATTR_CHARSET EQUALS QUOTED_STRING{
-        (void)$3;
+        free($3);
     }
 ;
 
@@ -305,19 +314,19 @@ style_characteristics:
 
 attr_href:
     ATTR_HREF EQUALS QUOTED_STRING{
-        (void)$3;
+        free($3);
     }
 ;
 
 attr_src:
     ATTR_SRC EQUALS QUOTED_STRING{
-        (void)$3;
+        free($3);
     }
 ;
 
 attr_alt:
     ATTR_ALT EQUALS QUOTED_STRING{
-        (void)$3;
+        free($3);
     }
 ;
 
@@ -331,19 +340,23 @@ attr_width:
 
 attr_type:
     ATTR_TYPE EQUALS QUOTED_STRING{
-        (void)$3;
+       free($3);
     }
 ;
 
+
 attr_for:
     ATTR_FOR EQUALS QUOTED_STRING{
-        (void)$3;
+        pNode* temp=check_adress(input_adresses,$3);//get the adress that links our for attribute with the id of an input
+        if(temp == NULL ) yyerror("value in for must be linked with a singular input id");//if its null it means that for either has  a duplicate input id value or none
+        else delete_adress_node(input_adresses,temp);
+        free($3);
     }
 ;
 
 attr_value:
     ATTR_VALUE EQUALS QUOTED_STRING{
-        (void)$3;
+        free($3);
     }
 ;
 
@@ -358,6 +371,7 @@ int main(int argc, char** argv) {
     bool inputFromFile = false;
 
     id_list = newList(); //the linked list we store the ids in
+    input_adresses = newAdressList();
     yydebug = 0; // TEMP: Enable debugging
 
     // Determine if we will be using a file or stdin as input
@@ -394,7 +408,9 @@ int main(int argc, char** argv) {
         fclose(yyin);
 
     //print_list(id_list);//just to check all the ids to make sure its correct
-    delete_list(id_list);
+    delete_list(id_list);//free memorry of id_list
+    delete_adress_list(input_adresses);//free memory of input_adresses
+    yylex_destroy();//clear flex internal buffers
     return 0;
 }
 
