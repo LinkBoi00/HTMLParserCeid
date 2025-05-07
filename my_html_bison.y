@@ -9,6 +9,7 @@
 
     extern int yylex(void);
     extern int yyerror(char* s);
+    extern void yylex_destroy();
     
     extern int lineNumber;
     extern int title_size;
@@ -420,6 +421,8 @@ int main(int argc, char** argv) {
     if (inputFromFile)
         fclose(yyin);
 
+    // Free flex internal buffers
+    yylex_destroy();
     return 0;
 }
 

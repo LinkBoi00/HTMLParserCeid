@@ -27,3 +27,7 @@ test: run
 		echo "Running test: $$test_file"; \
 		./$(OUTPUT_FILE) $$test_file; \
 	done
+
+valgrind: clean target
+	@echo "\nRunning parser (example.txt) with valgrind"
+	valgrind --leak-check=full --track-origins=yes  --show-leak-kinds=all ./$(OUTPUT_FILE) example.txt
