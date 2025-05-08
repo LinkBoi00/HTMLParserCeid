@@ -58,6 +58,7 @@
     void validateImgAttrs(ImgAttributes attrs);
     void validateInputAttrs(InputAttributes attrs);
     void validateStyle(StyleCharacteristics styleChars);
+    void validate_url(char* s);
 }
 
 %debug // TEMP: Enable debugging
@@ -359,12 +360,14 @@ style_characteristics:
 
 attr_href:
     ATTR_HREF EQUALS QUOTED_STRING {
+        validate_url($3);
         free($3);
     }
 ;
 
 attr_src:
     ATTR_SRC EQUALS QUOTED_STRING {
+        validate_url($3);
         free($3);
     }
 ;
@@ -484,6 +487,60 @@ int main(int argc, char** argv) {
     delete_address_list(input_addresses);
 
     return 0;
+}
+
+int _check_full_relative_url(char* s, int index, int size) {
+    while(index < size) {
+        if (s[index] == ' ') {
+            yyerror("Whitespaces not allowed in URLs, use %20 for spaces or a +");
+        } else if (s[index] == '/' && index+1<size && s[index+1] == '/' && index+2<size && s[index+2] == ':'){
+            yyerror("//: is not allowed in URL");
+        } else if (s[index] == '/' && index+1<size && s[index+1] == '/'){
+            yyerror("// is not allowed in path");
+        }
+        index++;
+    }
+
+    return index;
+}
+
+void validate_url(char* s) {
+    int index = 0;
+    char* buffer;
+    int size = strlen(s);
+
+    // Ignore starting whitespaces
+    while(s[index] == ' ') index++;
+
+    // Check for element ID or URL
+    if (s[index++] == '#') {
+        buffer=strndup(s + index, size - 1);
+        
+        if (!find_match(id_list,buffer))
+            yyerror("#id_list, id_list must have the name of an existing id in the file");
+        
+        free(buffer);
+    } else {
+        char* https=NULL;
+        if(index+8 <= size) https=strndup(s + index-1, 8);
+
+        char* http=NULL;
+        if(index+7 <= size) http=strndup(s + index-1, 7);
+
+        bool isHttps = false;
+        bool isHttp = false;
+        if(isHttps = (strcmp(https,"https://") == 0) || (isHttp = (strcmp(http,"http://"))) == 0 ) {
+            if (isHttps) index += 8;
+            if (isHttp) index += 7;
+
+            _check_full_relative_url(s, index, size);
+        } else {
+            _check_full_relative_url(s, index, size);
+        }
+
+        free(https);
+        free(http);
+    }
 }
 
 void validateImgAttrs(ImgAttributes attrs) {

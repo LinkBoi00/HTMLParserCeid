@@ -20,12 +20,20 @@
 
     <div id="div1" style="color:white; font_size:69%; ">
         <!-- comment -->
-        <a id="hyper2" href= "https://arxes.ceid.gr">
+        <a id="hyper2" href= "../arxes/flex%20bison/hello_world">
             Here comes an image. <!-- gamw thn athina -->
             <img src="image.jpg" id="myimg321" alt="Example Image" height=9 width=9 >
         </a>
     </div>
     
+    <div id="div2" style="color:white; font_size:69%; ">
+        <!-- comment -->
+        <a id="hyper3" href="#hyper2">
+            Here comes an image. 
+            <img src="image.jpg" id="myimg3211" alt="Example Image" height=9 width=9 >
+        </a>
+    </div>
+
     <!-- gamw thn kalamata -->
     
     <form id="form1">
