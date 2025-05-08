@@ -6,6 +6,36 @@
     <meta name="author" content="Input your name here">
 </head>
 <body>
+    <p id = "par1" style="backround_color:red_door; color:black; font_family:fast_and_furious; font_size:9px;">This is my project.</p>
+    <a id="hyper1" href="https://arxes.ceid.gr">
+        Here comes an image.
+    </a>
+    
+    <!--
+    A wild
+    comment appeared.
+    -->
+    
+    <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
+
+    <div id="div1" style="color:white; font_size:69%; ">
+        <!-- comment -->
+        <a id="hyper2" href= "../arxes/flex%20bison/hello_world">
+            Here comes an image. <!-- gamw thn athina -->
+            <img src="image.jpg" id="myimg321" alt="Example Image" height=9 width=9 >
+        </a>
+    </div>
+    
+    <div id="div2" style="color:white; font_size:69%; ">
+        <!-- comment -->
+        <a id="hyper3" href="#hyper2">
+            Here comes an image. 
+            <img src="image.jpg" id="myimg3211" alt="Example Image" height=9 width=9 >
+        </a>
+    </div>
+
+    <!-- gamw thn kalamata -->
+    
     <form id="form1">
         <input type="text" id="label1">
         <label for="label1" id="lol">Name:</label>

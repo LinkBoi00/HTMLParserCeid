@@ -3,54 +3,71 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <stdbool.h>
+    #include <string.h>
     #include "linked_list.h"
 
     #define YYDEBUG 1
 
     extern int yylex(void);
     extern int yyerror(char* s);
+    extern void yylex_destroy();
     
     extern int lineNumber;
     extern int title_size;
-    //int yylex_destroy(void);
-    extern void yylex_destroy();
     extern FILE *yyin;
 
+    int validate_url(char* s,int index,int size);
+
     bool parse_success = true;
+
+    // Input tag type attribute
+    int submit_input_count = 0;
+    int checkbox_input_count = 0;
+    bool is_input_submit_last = false;
+
+    // Form tag checkbox-count attribute
+    int checkbox_count_value = -1;
+
+    // Linked list for IDs
     Linked_list* id_list;
-    Adress_list* input_adresses;
+    Address_list* input_addresses;
 %}
 
 %code requires {
-    struct Attributes {
+    struct ImgAttributes {
         int has_id;
         int has_src;
         int has_alt;
         int has_type;
         int has_width;
         int has_height;
+    } typedef ImgAttributes;
+
+    struct InputAttributes {
+        int has_id;
+        int has_type;
         int has_style;
         int has_value;
-    } typedef Attributes;
+    } typedef InputAttributes;
 
-    struct Style {
+    struct StyleCharacteristics {
         int has_backround;
         int has_color;
         int has_font_size;
         int has_font_family;
-    }typedef Style;
-
-    void validateImgAttrs(Attributes attrs);
-    void validateInputAttrs(Attributes attrs);
-
-    void validateStyle(Style style);
+    } typedef StyleCharacteristics;
+    
+    void validateImgAttrs(ImgAttributes attrs);
+    void validateInputAttrs(InputAttributes attrs);
+    void validateStyle(StyleCharacteristics styleChars);
 }
 
 %debug // TEMP: Enable debugging
 
 %union {
-    Attributes attrs;
-    Style style;
+    ImgAttributes imgAttrs;
+    InputAttributes inputAttrs;
+    StyleCharacteristics styleChars;
     int num;
     char* str;
 }
@@ -63,18 +80,18 @@
 
 %token ATTR_NAME ATTR_CONTENT ATTR_CHARSET ATTR_ID ATTR_STYLE ATTR_HREF
 %token ATTR_SRC ATTR_ALT ATTR_HEIGHT ATTR_WIDTH ATTR_FOR ATTR_TYPE ATTR_VALUE
+%token ATTR_CHECKBOXES
 
-%token EQUALS TAG_CLOSE
-%token<num> NUMBER
 %token<str> QUOTED_STRING
-%token TEXT ERROR
+%token<num> NUMBER
+%token TEXT ERROR EQUALS TAG_CLOSE
 
+%type<imgAttrs> img_attributes
+%type<inputAttrs> input_attributes
+
+%type<styleChars> style_characteristics
 %token BACKROUND_COLOR COLOR FONT_FAMILY FONT_SIZE SEMICOLON COLON QUOTE
 
-%type<attrs> img_attributes input_attributes
-%type<style> style_characteristics
-
-//%destructor { free($$); } <str> //destructor to automatically free memory of strings
 /* Rules */
 %%
 input:
@@ -158,7 +175,7 @@ img_tag:
 
 img_attributes:
     {
-        $$ = (Attributes){0, 0, 0, 0, 0, 0, 0, 0};
+        $$ = (ImgAttributes){0, 0, 0, 0, 0, 0};
     }
    | img_attributes attr_src {
         $$ = $1;
@@ -183,12 +200,40 @@ img_attributes:
 ;
 
 form_tag:
-    FORM_OPEN form_attributes TAG_CLOSE form_children FORM_CLOSE
+    FORM_OPEN form_attributes TAG_CLOSE form_children FORM_CLOSE {
+        if (submit_input_count > 1) {
+            yyerror("Only one submit input tag is allowed per form");
+        }
+        if (submit_input_count == 1 && is_input_submit_last == false) {
+            yyerror("Submit input tag must be the last input tag in a form");
+        }
+
+        if (checkbox_count_value > 0) {
+            if (checkbox_count_value != checkbox_input_count) {
+                if (checkbox_input_count == 0) {
+                    yyerror("checkbox-count attribute used, but no checkbox input tag found");
+                } else {    
+                printf("Expected %d checkbox input tags, got %d", checkbox_count_value, checkbox_input_count);
+                yyerror("Checkbox input tags amount mismatch");
+                }
+            }
+        }
+
+        submit_input_count = 0;
+        checkbox_input_count = 0;
+        checkbox_count_value = -1;
+    }
 ;
 
 form_attributes:
     attr_id
     | attr_id attr_style
+    | attr_style attr_id
+    | attr_id attr_checkboxes
+    | attr_id attr_checkboxes attr_style
+    | attr_id attr_style attr_checkboxes
+    | attr_style attr_checkboxes attr_id
+    | attr_style attr_id attr_checkboxes
 ;
 
 form_children:
@@ -206,20 +251,21 @@ input_tag:
 
 input_attributes:
     {
-        $$ = (Attributes){0, 0, 0, 0, 0, 0, 0, 0};
+        $$ = (InputAttributes){0, 0, 0, 0};
     }
     | input_attributes attr_type {
         $$ = $1;
         $$.has_type++;
-   }
-    | input_attributes ATTR_ID EQUALS QUOTED_STRING { //since this is a special case we do it this way so we can compare it 
+    }
+    // Since this is a special case we do it this way so we can compare it
+    | input_attributes ATTR_ID EQUALS QUOTED_STRING {
         $$ = $1;
         $$.has_id++;
         (!find_match(id_list,$4))? emplace_back(id_list,$4) : yyerror("Duplicate id");
 
         Node* temp=id_list->tail;
-        insert_adress(input_adresses,temp);
-        
+        insert_address(input_addresses,temp);
+        free($4);
    }
     | input_attributes attr_style {
         $$ = $1;
@@ -262,26 +308,29 @@ div_children:
 ;
 
 attr_name:
-    ATTR_NAME EQUALS QUOTED_STRING{
+    ATTR_NAME EQUALS QUOTED_STRING {
         free($3);
     }
 ;
 
 attr_content:
-    ATTR_CONTENT EQUALS QUOTED_STRING{
+    ATTR_CONTENT EQUALS QUOTED_STRING {
         free($3);
     }
 ;
 
 attr_charset:
-    ATTR_CHARSET EQUALS QUOTED_STRING{
+    ATTR_CHARSET EQUALS QUOTED_STRING {
         free($3);
     }
 ;
 
 attr_id:
-    ATTR_ID EQUALS QUOTED_STRING{
-        (!find_match(id_list,$3))? emplace_back(id_list,$3) : yyerror("Duplicate id");
+    ATTR_ID EQUALS QUOTED_STRING {
+        if(strlen($3) == 0) yyerror("empty id");
+
+        (!find_match(id_list, $3)) ? emplace_back(id_list, $3) : yyerror("Duplicate id");
+        free($3);
     }
 ;
 
@@ -292,7 +341,7 @@ attr_style:
 ;
 
 style_characteristics:
-    { $$=(Style) {0,0,0,0}; }
+    { $$=(StyleCharacteristics) {0,0,0,0}; }
     |style_characteristics BACKROUND_COLOR COLON text SEMICOLON{
         $$=$1;
         $$.has_backround++;
@@ -306,26 +355,100 @@ style_characteristics:
         $$.has_font_family++;
     }
     |style_characteristics FONT_SIZE COLON NUMBER SEMICOLON{
-        if ($4 <= 0) yyerror("font size must be a possitive integer");
+        if ($4 <= 0) yyerror("Font size must be a possitive integer");
         $$=$1;
         $$.has_font_size++;
     }
 ;
 
 attr_href:
-    ATTR_HREF EQUALS QUOTED_STRING{
+    ATTR_HREF EQUALS QUOTED_STRING {
+        int index=0;
+        int size=strlen($3);
+        char* buffer;
+
+        while($3[index] == ' ') index++;
+
+        if($3[index++] == '#'){
+            buffer=strndup($3 + index,strlen($3) -1 );
+            //printf("%s",buffer);
+            (find_match(id_list,buffer))?/*do nothing*/:yyerror("#id_list, id_list must have the name of an existing id in the file");
+            free(buffer);
+        }
+        else{
+            char* https=NULL;
+            if(index+8 <=size) https=strndup($3 + index-1,8);
+            char* http=NULL;
+            if(index+7 <= size) http=strndup($3 + index-1,7);
+
+            if(strcmp(https,"https://") == 0 || strcmp(http,"http://") == 0){
+                
+                if(strcmp(https,"https://") == 0) index+=8;
+                if(strcmp(http,"http://") == 0) index+=7;
+
+               validate_url($3,index,size);
+            }
+            else{
+               validate_url($3,index,size);
+            }
+
+            /*
+            else{
+                if ($3[index]=='/' || (index+1 < size && $3[index] == '.' && $3[index+1] == '/') || (index+2 < size && $3[index] == '.' && $3[index+1] == '.' && $3[index+2] == '/') ) {
+                   
+                   while(index < size){
+
+                    if($3[index] == ' '){
+                        yyerror(" whitespaces not allowed use %20 for spaces or an +");
+                    }
+
+                    index++;
+                }
+                else{
+                    yyerror("relative url must start with / , ./ or ../");
+                }
+            }*/
+
+           // printf("%s ",$3);
+
+            free(https);
+            free(http);
+        }
         free($3);
     }
 ;
 
 attr_src:
     ATTR_SRC EQUALS QUOTED_STRING{
-        free($3);
+        int index=0;
+        int size=strlen($3);
+        char* buffer;
+
+        while($3[index] == ' ') index++;
+
+        char* https=NULL;
+        if(index+8 <=size) https=strndup($3 + index-1,8);
+        char* http=NULL;
+        if(index+7 <= size) http=strndup($3 + index-1,7);
+
+        
+        if((https && strcmp(https,"https://") == 0) || (http && strcmp(https,"http://") == 0) ){
+            //url handling
+            if(strcmp(http,"https://") == 0) index+=8;
+            if(strcmp(http,"http://") == 0) index+=7;
+
+            validate_url($3,index,size);
+        }
+        else{
+            validate_url($3,index,size);
+        }
+        free(https);
+        free(http);
     }
 ;
 
 attr_alt:
-    ATTR_ALT EQUALS QUOTED_STRING{
+    ATTR_ALT EQUALS QUOTED_STRING {
         free($3);
     }
 ;
@@ -339,24 +462,55 @@ attr_width:
 ;
 
 attr_type:
-    ATTR_TYPE EQUALS QUOTED_STRING{
-       free($3);
+    ATTR_TYPE EQUALS QUOTED_STRING {
+        if (strcmp($3, "text") != 0 && strcmp($3, "checkbox") != 0 &&
+            strcmp($3, "radio") != 0 && strcmp($3, "submit") != 0) {
+            yyerror("Invalid input type value. Allowed: text, checkbox, radio, submit");
+        }
+
+        if (strcmp($3, "submit") == 0) {
+            submit_input_count++;
+            is_input_submit_last = true;
+        } else {
+            is_input_submit_last = false;
+        }
+
+        if (strcmp($3, "checkbox") == 0) {
+            checkbox_input_count++;
+        }
+
+        free($3);
     }
 ;
 
 
 attr_for:
-    ATTR_FOR EQUALS QUOTED_STRING{
-        pNode* temp=check_adress(input_adresses,$3);//get the adress that links our for attribute with the id of an input
-        if(temp == NULL ) yyerror("value in for must be linked with a singular input id");//if its null it means that for either has  a duplicate input id value or none
-        else delete_adress_node(input_adresses,temp);
+    ATTR_FOR EQUALS QUOTED_STRING {
+        // Get the address that links our for attribute with the id of an input
+        pNode* temp=check_address(input_addresses,$3);
+
+        // If its null it means that for either has  a duplicate input id value or none
+        if (temp == NULL )
+            yyerror("for attribute must be linked uniquely with an input tag's id");
+        else
+            delete_address_node(input_addresses,temp);
+
         free($3);
     }
 ;
 
 attr_value:
-    ATTR_VALUE EQUALS QUOTED_STRING{
+    ATTR_VALUE EQUALS QUOTED_STRING {
         free($3);
+    }
+;
+
+attr_checkboxes:
+    ATTR_CHECKBOXES EQUALS NUMBER {
+        if($3 <= 0) {
+            yyerror("checkboxes-count must be a positive integer");
+        }
+        checkbox_count_value = $3;
     }
 ;
 
@@ -370,8 +524,8 @@ text:
 int main(int argc, char** argv) {
     bool inputFromFile = false;
 
-    id_list = newList(); //the linked list we store the ids in
-    input_adresses = newAdressList();
+    id_list = newList();
+    input_addresses = newAddressList();
     yydebug = 0; // TEMP: Enable debugging
 
     // Determine if we will be using a file or stdin as input
@@ -395,26 +549,22 @@ int main(int argc, char** argv) {
 
     // Show diagnostic message
     if (parse_success) {
-        printf("\nmyHTMLParser: Parsing completed successfully and the file is valid,proceeding to now print the myHTML file...\n");
-        fseek(yyin,0,SEEK_SET);
-        char c;
-        while( (c = fgetc(yyin)) != EOF ){
-            putchar(c);
-        }
+        printf("\nmyHTMLParser: Parsing completed successfully and the file is valid.\n");
     }
 
     // Close the input file, if applicable
     if (inputFromFile)
         fclose(yyin);
 
-    //print_list(id_list);//just to check all the ids to make sure its correct
-    delete_list(id_list);//free memorry of id_list
-    delete_adress_list(input_adresses);//free memory of input_adresses
-    yylex_destroy();//clear flex internal buffers
+    // De-allocate memory
+    yylex_destroy();
+    delete_list(id_list);
+    delete_address_list(input_addresses);
+
     return 0;
 }
 
-void validateImgAttrs(Attributes attrs) {
+void validateImgAttrs(ImgAttributes attrs) {
     if (attrs.has_id != 1 || attrs.has_src != 1 || attrs.has_alt != 1) {
         yyerror("img tag requires exactly one each of: id, src, alt");
     }
@@ -423,7 +573,7 @@ void validateImgAttrs(Attributes attrs) {
     }
 }
 
-void validateInputAttrs(Attributes attrs) {
+void validateInputAttrs(InputAttributes attrs) {
     if (attrs.has_id != 1 || attrs.has_type != 1) {
         yyerror("input tag requires exactly one each of: id, type");
     }
@@ -433,10 +583,31 @@ void validateInputAttrs(Attributes attrs) {
     }
 }
 
-void validateStyle(Style style){
-    if (style.has_backround>1 || style.has_color>1 || style.has_font_family>1 || style.has_font_size>1){
+void validateStyle(StyleCharacteristics styleChars){
+    if (styleChars.has_backround>1 || styleChars.has_color>1 || styleChars.has_font_family>1 || styleChars.has_font_size>1){
         yyerror("style attribute allows at most one each of optional: backround_color, color, font_family, font_size");
     }
+}
+
+
+int validate_url(char* s,int index,int size){
+
+    while(index < size){
+
+        if(s[index] == ' '){
+            yyerror(" whitespaces not allowed use %20 for spaces or an +");
+        } 
+        else if(s[index] == '/' && index+1<size && s[index+1] == '/' && index+2<size && s[index+2] == ':'){
+            yyerror("//: is not allowed in path");
+        }
+        else if(s[index] == '/' && index+1<size && s[index+1] == '/'){
+            yyerror("double / is not allowed in path");
+        }
+
+        index++;
+    }
+
+    return index;
 }
 
 int yyerror(char* s) {

@@ -57,18 +57,23 @@
 <TAG_START_STATE>"for"                  { return ATTR_FOR; }
 <TAG_START_STATE>"type"                 { return ATTR_TYPE; }
 <TAG_START_STATE>"value"                { return ATTR_VALUE; }
+<TAG_START_STATE>"checkbox-count"       { return ATTR_CHECKBOXES; }
 
-<TAG_START_STATE,STYLE_STATE,STYLE_QUOTE>"="        { return EQUALS; }
-<TAG_START_STATE>\'[^']*\'                          { yylval.str=strdup(yytext); return QUOTED_STRING; }
-<TAG_START_STATE>\"[^"]*\" { 
-    yylval.str=strdup(yytext);
-    return QUOTED_STRING; 
+<TAG_START_STATE,STYLE_STATE,STYLE_QUOTE>"="  { return EQUALS; }
+<TAG_START_STATE>\"[^"]*\"   {
+    yylval.str = strndup(yytext + 1, yyleng - 2);
+    return QUOTED_STRING;
 }
+
+<TAG_START_STATE>\'[^']*\'   {
+    yylval.str = strndup(yytext + 1, yyleng - 2);
+    return QUOTED_STRING;
+} 
 
 <TAG_START_STATE>-?[0-9]+               { yylval.num = atoi(yytext); return NUMBER; }
 <TAG_START_STATE>">"                    { yy_pop_state(); return TAG_CLOSE; }
 
-<STYLE_QUOTE>\"                          { yy_push_state(STYLE_STATE); return QUOTE;}
+<STYLE_QUOTE>\"                         { yy_push_state(STYLE_STATE); return QUOTE;}
 <STYLE_STATE>"backround_color"          { return BACKROUND_COLOR; }
 <STYLE_STATE>"color"                    { return COLOR; }
 <STYLE_STATE>"font_family"              { return FONT_FAMILY; }
