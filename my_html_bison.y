@@ -6,6 +6,8 @@
     #include <string.h>
 
     #define YYDEBUG 1
+    #define MAX_IDS 15
+
 
     extern int yylex(void);
     extern int yyerror(char* s);
@@ -24,6 +26,26 @@
 
     // Form tag checkbox-count attribute
     int checkbox_count_value = -1;
+
+    char* id_list[MAX_IDS];
+    int id_count = 0;
+
+    void add_id(char* id) {
+        if (id_count < MAX_IDS) {
+            id_list[id_count++] = strdup(id);
+        } else {
+            yyerror("Too many ids in document");
+        }
+    }
+
+    bool id_exists(const char* target) {
+        for (int i = 0; i < id_count; i++) {
+            if (strcmp(id_list[i], target) == 0)
+                return true;
+        }
+        return false;
+    }
+
 %}
 
 %code requires {
@@ -67,6 +89,8 @@
 %token ATTR_CHECKBOXES
 
 %token<str> QUOTED_STRING
+%token<str>ABSOLUTE_URL
+%token<str>FRAGMENTED_URL
 %token<num> NUMBER
 %token TEXT ERROR EQUALS TAG_CLOSE
 
@@ -302,9 +326,11 @@ attr_charset:
 
 attr_id:
     ATTR_ID EQUALS QUOTED_STRING {
+        add_id($3);  
         free($3);
     }
 ;
+
 
 attr_style:
     ATTR_STYLE EQUALS QUOTED_STRING {
@@ -313,13 +339,31 @@ attr_style:
 ;
 
 attr_href:
-    ATTR_HREF EQUALS QUOTED_STRING {
+    ATTR_HREF EQUALS ABSOLUTE_URL {
+        free($3);
+    }
+    | ATTR_HREF EQUALS QUOTED_STRING {
+        free($3);
+    }
+    | ATTR_HREF EQUALS FRAGMENTED_URL {
+        const char* full = $3;
+        const char* id_part = full + 1;  // Skip the '#'
+
+        if (!id_exists(id_part)) {
+            char msg[256];
+            snprintf(msg, sizeof(msg), "href=\"#%s\" does not match any id", id_part);
+            yyerror(msg);
+        }
         free($3);
     }
 ;
 
+
 attr_src:
-    ATTR_SRC EQUALS QUOTED_STRING {
+    ATTR_SRC EQUALS ABSOLUTE_URL{
+        free($3);
+    }
+    | ATTR_SRC EQUALS QUOTED_STRING {
         free($3);
     }
 ;

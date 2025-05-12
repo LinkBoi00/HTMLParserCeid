@@ -60,6 +60,17 @@
 <TAG_START_STATE>"checkbox-count"       { return ATTR_CHECKBOXES; }
 
 <TAG_START_STATE>"="                    { return EQUALS; }
+
+<TAG_START_STATE>\"https:\/\/[^\"]*\"   {yylval.str = strndup(yytext + 1, yyleng - 2);
+    return ABSOLUTE_URL;}
+<TAG_START_STATE>\'https:\/\/[^\']*\"'  {yylval.str = strndup(yytext + 1, yyleng - 2);
+    return ABSOLUTE_URL;}
+
+<TAG_START_STATE>\"#[^\"]*\"    {yylval.str = strndup(yytext + 1, yyleng - 2);
+    return FRAGMENTED_URL;}
+<TAG_START_STATE>\"#[^\"]*\"    {yylval.str = strndup(yytext + 1, yyleng - 2);
+    return FRAGMENTED_URL;}
+
 <TAG_START_STATE>\"[^"]*\"   {
     yylval.str = strndup(yytext + 1, yyleng - 2);
     return QUOTED_STRING;
