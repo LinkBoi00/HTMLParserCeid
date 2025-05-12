@@ -6,7 +6,7 @@
     #include <string.h>
 
     #define YYDEBUG 1
-    #define MAX_IDS 15
+    #define MAX_IDS 15   // Max:1 id per element
 
 
     extern int yylex(void);
