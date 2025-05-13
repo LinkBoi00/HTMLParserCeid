@@ -207,6 +207,10 @@ form_tag:
             yyerror("Submit input tag must be the last input tag in a form");
         }
 
+        if (checkbox_count_value < 0 && checkbox_input_count > 0) {
+            yyerror("checkbox-count attribute missing, but checkbox input tag found");
+        }
+
         if (checkbox_count_value > 0) {
             if (checkbox_count_value != checkbox_input_count) {
                 if (checkbox_input_count == 0) {
