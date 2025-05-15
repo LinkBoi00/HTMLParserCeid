@@ -6,7 +6,7 @@
     <meta name="author" content="Input your name here">
 </head>
 <body>
-    <p id = "par1" style="color:blue">This is my project.</p>
+    <p id = "par1" style="color:blue;">This is my project.</p>
     <a id="hyper1" href="https://arxes.ceid.gr">
         Here comes an image.
     </a>

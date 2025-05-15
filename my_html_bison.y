@@ -88,7 +88,7 @@
 %type<imgAttrs> img_attributes
 %type<inputAttrs> input_attributes
 
-%type<styleChars> style_characteristics
+%type<styleChars> multiple_style_characteristics
 %token BACKROUND_COLOR COLOR FONT_FAMILY FONT_SIZE SEMICOLON COLON QUOTE
 
 /* Rules */
@@ -336,28 +336,39 @@ attr_id:
 ;
 
 attr_style:
-    ATTR_STYLE EQUALS QUOTE style_characteristics QUOTE{
+    ATTR_STYLE EQUALS QUOTE single_style_characteristics QUOTE
+    |ATTR_STYLE EQUALS QUOTE multiple_style_characteristics QUOTE{
         validateStyle($4);
+    }
+    
+;
+
+single_style_characteristics:
+    BACKROUND_COLOR COLON text
+    |COLOR COLON text 
+    |FONT_FAMILY COLON text 
+    |FONT_SIZE COLON NUMBER{
+        if ($3 <= 0) yyerror("Font size must be a possitive integer");
     }
 ;
 
-style_characteristics:
+multiple_style_characteristics:
     { $$=(StyleCharacteristics) {0,0,0,0}; }
-    |style_characteristics BACKROUND_COLOR COLON text SEMICOLON{
-        $$=$1;
+    |BACKROUND_COLOR COLON text SEMICOLON multiple_style_characteristics {
+        $$=$5;
         $$.has_backround++;
     }
-    |style_characteristics COLOR COLON text SEMICOLON{
-        $$=$1;
+    |COLOR COLON text SEMICOLON multiple_style_characteristics{
+        $$=$5;
         $$.has_color++;
     }
-    |style_characteristics FONT_FAMILY COLON text SEMICOLON{
-        $$=$1;
+    |FONT_FAMILY COLON text SEMICOLON multiple_style_characteristics{
+        $$=$5;
         $$.has_font_family++;
     }
-    |style_characteristics FONT_SIZE COLON NUMBER SEMICOLON{
-        if ($4 <= 0) yyerror("Font size must be a possitive integer");
-        $$=$1;
+    |FONT_SIZE COLON NUMBER SEMICOLON multiple_style_characteristics{
+        if ($3 <= 0) yyerror("Font size must be a possitive integer");
+        $$=$5;
         $$.has_font_size++;
     }
 ;
