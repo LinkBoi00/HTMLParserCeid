@@ -37,3 +37,33 @@
     </form>
 </body>
 </MYHTML>
+
+<MYHTML>
+<head>
+    <title>Principles of Programming Languages & Compilers</title>
+    <meta name="description" content="Flex Bison Tutorial">
+    <meta charset="UTF-8">
+    <meta name="author" content="Input your name here">
+</head>
+<body>
+    <p id = "par1" style="color:blue;">This is my project.</p>
+    <a id="hyper1" href="https://arxes.ceid.gr">
+        Here comes an image.
+    </a>
+    
+    <!--
+    A wild
+    comment appeared.
+    -->
+    
+    <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
+
+    <div id="div1" style="color:blue;">
+        <!-- comment -->
+        <a id="hyper2" href= "https://arxes.ceid.gr">
+            Here comes an image.
+            <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
+        </a>
+    </div>
+</body>
+</MYHTML>
