@@ -16,6 +16,8 @@
     extern int title_size;
     extern FILE *yyin;
 
+    int validate_url(char* s,int index,int size);
+
     bool parse_success = true;
 
     // Input tag type attribute
