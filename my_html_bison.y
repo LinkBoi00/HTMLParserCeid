@@ -59,6 +59,7 @@
     void validateInputAttrs(InputAttributes attrs);
     void validateStyle(StyleCharacteristics styleChars);
     void validate_url(char* s);
+    void myHTML_printfile(FILE* myhtmlfile);
 }
 
 %debug // TEMP: Enable debugging
@@ -490,6 +491,8 @@ int main(int argc, char** argv) {
     // Show diagnostic message
     if (parse_success) {
         printf("\nmyHTMLParser: Parsing completed successfully and the file is valid.\n");
+        fseek(yyin, 0, SEEK_SET);//make file pointer go back to the start cause after a sucessfull parse its at the end
+        myHTML_printfile(yyin);
     }
 
     // Close the input file, if applicable
@@ -580,6 +583,21 @@ void validateInputAttrs(InputAttributes attrs) {
 void validateStyle(StyleCharacteristics styleChars){
     if (styleChars.has_backround>1 || styleChars.has_color>1 || styleChars.has_font_family>1 || styleChars.has_font_size>1){
         yyerror("style attribute allows at most one each of optional: backround_color, color, font_family, font_size");
+    }
+}
+
+
+void myHTML_printfile(FILE* myhtmlfile){
+    if (myhtmlfile == NULL) {
+        yyerror("\nError opening file\n");
+        return;
+    }
+
+    printf("Printing myHTML file:\n\n");
+
+    char c;
+    while ((c = fgetc(myhtmlfile)) != EOF) {
+        printf("%c",c);//print every character from the file to the terminal
     }
 }
 
