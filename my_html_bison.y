@@ -33,6 +33,7 @@
 
     void validateImgAttrs(ImgAttributes attrs);
     void validateInputAttrs(InputAttributes attrs);
+    void myHTML_printfile(FILE* myhtmlfile);
 }
 
 %debug // TEMP: Enable debugging
@@ -318,12 +319,15 @@ int main(int argc, char** argv) {
         yyin = file;
     }
 
+    myHTML_printfile(yyin);
+
+
     // Call the bison parser
     yyparse();
 
     // Show diagnostic message
     if (parse_success) {
-        printf("myHTMLParser: Parsing completed successfully and the file is valid.\n");
+        printf("\nmyHTMLParser: Parsing completed successfully and the file is valid.\n");
     }
 
     // Close the input file, if applicable
@@ -350,6 +354,23 @@ void validateInputAttrs(InputAttributes attrs) {
     if (attrs.has_value > 1 || attrs.has_style > 1) {
         yyerror("input tag allows at most one each of optional: value, style");
     }
+}
+
+void myHTML_printfile(FILE* myhtmlfile){
+    if (myhtmlfile == NULL) {
+        yyerror("\nError opening file\n");
+        return;
+    }
+
+    // Make file pointer go back to the start of the file
+    fseek(yyin, 0, SEEK_SET);
+
+    char c;
+    while ((c = fgetc(myhtmlfile)) != EOF) {
+        printf("%c",c);//print every character from the file to the terminal
+    }
+    printf("\n");
+    fseek(yyin, 0, SEEK_SET);
 }
 
 int yyerror(char* s) {
