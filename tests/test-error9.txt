@@ -17,7 +17,7 @@
     </div>
     
     <form id="form1" checkbox-count=1>
-        <input id="check1" type="checkbox" value="Are you over 18?"> <!-- hot -->
+        <input id="check1" type="checkbox" value="Checkbox check?">
         <label for="name" id="label1">Name:</label>
         <input type="text" id="name">
         <label id="label2" for="lastname">last Name:</label>

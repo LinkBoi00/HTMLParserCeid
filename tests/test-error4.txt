@@ -21,12 +21,12 @@
     <div id="div1" style="color:blue;">
         <!-- comment -->
         <a id="hyper" href= "https://arxes.ceid.gr">
-            Here comes an image. <!-- gamw thn athina -->
+            Here comes an image. <!-- comment -->
             <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
         </a>
     </div>
     
-    <!-- gamw thn kalamata -->
+    <!-- Single line comment -->
     
     <form id="form1">
         <label for ="name" id="label1">Name:</label>

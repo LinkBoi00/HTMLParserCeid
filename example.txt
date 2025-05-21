@@ -21,7 +21,7 @@
     <div id="div1" style="color:white; font_size:69%; ">
         <!-- comment -->
         <a id="hyper2" href= "../arxes/flex%20bison/hello_world">
-            Here comes an image. <!-- gamw thn athina -->
+            Here comes an image. <!-- comment -->
             <img src="image.jpg" id="myimg321" alt="Example Image" height=9 width=9 >
         </a>
     </div>
@@ -34,7 +34,7 @@
         </a>
     </div>
 
-    <!-- gamw thn kalamata -->
+    <!-- Single line comment -->
     
     <form id="form1" checkbox-count=1>
         <input type="text" id="label1">
