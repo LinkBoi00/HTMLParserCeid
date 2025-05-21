@@ -1,0 +1,5 @@
+<MYHTML>
+<body>
+<!-- comment -->
+</body>
+</MYHTML>

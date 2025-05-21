@@ -1,0 +1,18 @@
+<MYHTML>
+<head>
+    <title>Principles of Programming Languages & Compilers</title>
+</head>
+<body>
+    <p id = "par1" style="color:blue">This is my project.</p>
+    <a id="hyper" href="https://arxes.ceid.gr">
+        Here comes an image.
+    </a>
+    
+    <a id="hyper" href= "https://arxes.ceid.gr">
+        <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=9 >
+        Here comes an image. <!-- Comment -->
+    </a>
+
+    <!-- Single line comment -->
+</body>
+</MYHTML>
