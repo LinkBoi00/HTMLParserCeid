@@ -1,0 +1,34 @@
+<MYHTML>
+<head>
+    <title>Principles of Programming Languages & Compilers</title>
+    <meta name="description" content="Flex Bison Tutorial">
+    <meta charset="UTF-8">
+    <meta name="author" content="Input your name here">
+</head>
+<body>
+    <p id = "par1" style=" backround_color: red; color: blue; font_size: 76%; font_family: calibri; ">This is my project.</p>
+    <a id="hyper1" href="https://arxes.ceid.gr">
+        Here comes an image.
+    </a>
+    
+    <!--
+    A wild
+    comment appeared.
+    -->
+    
+    <img src="image.jpg" id="myimg123" alt="Example Image" height=9 width=10 >
+    
+    <div id = "div1"  style="color:white; font_size:69%;">
+        <!-- comment -->
+        <a id="hyper3" href="#hyper2">
+            Here comes an image. 
+            <img src="image.jpg" id="myimg3211" alt="Example Image" height=9 width=9 >
+        </a>
+    </div>
+
+    <form id="form1">
+        <input type="text" id="label1" value=46.69 >
+        <label for="label1" id="lol">Name:</label>
+    </form>
+</body>
+</MYHTML>

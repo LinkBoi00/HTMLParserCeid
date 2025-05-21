@@ -1,0 +1,16 @@
+<MYHTML>
+    <head>
+        <title> Principles of programming and Compilers </title>
+        <meta name="description" content="Flex Bison Tutorial">
+    </head>
+
+    <body>
+         <a id="hyper3" href="#hyper2">
+            Here comes an image. 
+            <img src="image1.jpg" id="tree" alt="Example Image1" height=21 width=57 >
+            <img src="image2.jpg" id="vector" alt="Example Image2" height=17 width=41 >
+
+            <!--a tag must only have one image-->
+        </a>
+    </body>
+</MYHTML>

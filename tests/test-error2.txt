@@ -1,10 +1,11 @@
 <MYHTML>
-<head>
-    <title> </title>
-</head>
-<body>
-    <form id="form1">
-       
-    </form>
-</body>
+
+    <body>
+
+    </body>
+
+    <head>
+        <!-- if head exists it must be before body-->
+    </head>
+
 </MYHTML>

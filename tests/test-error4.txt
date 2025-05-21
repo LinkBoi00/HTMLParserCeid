@@ -1,0 +1,7 @@
+<MYHTML>
+    <head>
+        <title> Principles of programming </title>
+    </head>
+
+    <!--body tag is mandatory-->
+</MYHTML>

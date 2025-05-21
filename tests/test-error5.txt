@@ -1,0 +1,15 @@
+<MYHTML>
+    <head>
+        <title> Principles of programming and Compilers </title>
+        <meta name="description" content="Flex Bison Tutorial">
+    </head>
+
+    <body>
+         <a id="hyper3" href="#hyper2">
+            Here comes an image. 
+            <img src="image.jpg" id="ceid_logo" alt="Example Image1" height=-8 width=100.8 >
+
+            <!--height and width must be a positive integer-->
+        </a>
+    </body>
+</MYHTML>
